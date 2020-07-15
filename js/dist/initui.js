@@ -89,9 +89,12 @@
     HTML: '[target="html"]',
     CLEAR: '[target="clear"]',
     PAGE: '[target="page"]',
+    TREE: '[target="tree"]',
     TOOLTIP: '[show="tooltip"]',
     ERROR_IMG: 'img[src-error]',
-    WARN: 'warn'
+    NAV_LIST_GROUP: '.nav, .list-group',
+    ACTIVE: '.active',
+    ACTIVE_UL: '> li > .active'
   };
   var Event = {
     CLICK_QUERY: "click.query" + EVENT_KEY + DATA_API_KEY,
@@ -107,7 +110,10 @@
     MODAL_CONTENT: '.modal-content',
     PAGE_LINK: '.page-link',
     CHECK_ALL: '.chk-all',
-    CHECK: '.chk'
+    CHECK: '.chk',
+    ZTREE: 'ztree',
+    WARN: 'warn',
+    ACTIVE: 'active'
   };
   var Customer = {
     CHECK: 'chk',
@@ -124,15 +130,15 @@
   };
   var DataKey = {
     QUERY: DATA_INFO + "query"
-    /**
-     * ------------------------------------------------------------------------
-     *  初始化方法 init()
-     *  @author lyc
-     *  @date 2020年06月04日17:48:50
-     * ------------------------------------------------------------------------
-     */
-
   };
+  var JSON = window.JSON;
+  /**
+   * ------------------------------------------------------------------------
+   *  初始化方法 init()
+   *  @author lyc
+   *  @date 2020年06月04日17:48:50
+   * ------------------------------------------------------------------------
+   */
 
   var InitUI =
   /*#__PURE__*/
@@ -154,7 +160,9 @@
       this.query();
       this.form();
       this.ajax();
+      this.html();
       this.page();
+      this.tree();
     }
 
     var _proto = InitUI.prototype;
@@ -210,9 +218,10 @@
             src = '/img/img.png';
           }
 
-          return src;
+          return $this.attr('src', src);
         });
-        return src && src !== window.location.href ? $this.attr('src', src) : $this.trigger(Event.ERROR_IMG);
+        var error = $.Event(Event.ERROR_IMG);
+        return src && src !== window.location.href ? $this.attr('src', src) : $this.trigger(error);
       });
     } // ----------------------------------------------------------------------
     //  提示插件 需要tooltip.js
@@ -532,6 +541,14 @@
 
         var $this = $(event.currentTarget);
         $this.blur();
+        var listElement = $this.closest(Selector.NAV_LIST_GROUP)[0];
+        var activeElements = listElement && (listElement.nodeName === 'UL' || listElement.nodeName === 'OL') ? $(listElement).find(Selector.ACTIVE_UL) : $(listElement).children(Selector.ACTIVE);
+
+        if (activeElements) {
+          $(activeElements).removeClass(ClassName.ACTIVE);
+        }
+
+        $this.addClass(ClassName.ACTIVE);
         var data = $this.data();
 
         var config = _objectSpread({}, data, {
@@ -564,6 +581,96 @@
           op.data.pageNum = pageNum;
           Ajax.send(op);
         });
+      });
+    } // ----------------------------------------------------------------------
+    //  tree js处理
+    // ----------------------------------------------------------------------
+    ;
+
+    _proto.tree = function tree() {
+      var _this5 = this;
+
+      $(Selector.TREE, this._element).each(function (index, element) {
+        if (!element.classList.contains(ClassName.ZTREE)) {
+          element.classList.add(ClassName.ZTREE);
+        }
+
+        var $this = $(element);
+        var check = element.hasAttribute('check');
+        var edit = element.hasAttribute('edit');
+        var autoParam = element.getAttribute('auto');
+        autoParam = autoParam && typeof autoParam !== 'string' ? JSON.parse(autoParam) : ['id', 'pid'];
+        var url = $this.data('url');
+        var params = $(_this5).data();
+
+        if (params && params.url) {
+          delete params.url;
+        }
+
+        var setting = {
+          // ztree config
+          view: _objectSpread({}, edit ? {
+            addHoverDom: addHoverDom,
+            removeHoverDom: removeHoverDom
+          } : {}, {
+            selectedMulti: false
+          }),
+          check: {
+            enable: check
+          },
+          edit: {
+            enable: edit
+          },
+          data: {
+            simpleData: {
+              enable: true,
+              idKey: 'id',
+              pIdKey: 'pid',
+              rootPId: 0
+            }
+          },
+          asyc: {
+            enable: true,
+            otherParam: params,
+            autoParam: autoParam,
+            type: Ajax.POST,
+            url: url,
+            dataType: Ajax.JSON
+          },
+          callback: {}
+        };
+        var newCount = 1;
+
+        function addHoverDom(treeId, treeNode) {
+          var sObj = $("#" + treeNode.tId + "_span");
+
+          if (treeNode.editNameFlag || $("#addBtn_" + treeNode.tId).length > 0) {
+            return;
+          }
+
+          var addStr = "<span class='button add' id='addBtn_" + treeNode.tId + "' title='add node' onfocus='this.blur();'></span>";
+          sObj.after(addStr);
+          var btn = $("#addBtn_" + treeNode.tId);
+          var h = 100;
+
+          if (btn) {
+            btn.on('click', function () {
+              var zTree = $.fn.zTree.getZTreeObj('treeDemo');
+              zTree.addNodes(treeNode, {
+                id: h + newCount,
+                pId: treeNode.id,
+                name: "new node" + newCount++
+              });
+              return false;
+            });
+          }
+        }
+
+        function removeHoverDom(treeId, treeNode) {
+          $("#addBtn_" + treeNode.tId).off().remove();
+        }
+
+        $.fn.zTree.init($this, setting);
       });
     } // ----------------------------------------------------------------------
     //  ajax默认success方法
@@ -604,7 +711,7 @@
     ;
 
     _proto._ajaxUseful = function _ajaxUseful($this, config) {
-      var _this5 = this;
+      var _this6 = this;
 
       var chk = Tool.eval(config[Customer.CHECK]);
 
@@ -631,12 +738,12 @@
         }
       }
 
-      var warn = config[Selector.WARN];
+      var warn = config[ClassName.WARN];
 
       if (warn) {
         var confirm = new Confirm(warn);
         confirm.ok(function () {
-          return _this5._ajaxUsefulMain($this, config);
+          return _this6._ajaxUsefulMain($this, config);
         }).show();
       } else {
         this._ajaxUsefulMain($this, config);

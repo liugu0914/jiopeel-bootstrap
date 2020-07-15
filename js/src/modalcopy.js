@@ -192,17 +192,21 @@ class ModalCopy {
       this._hideModal()
       return
     }
-    if ($(this._element).hasClass(ClassName.FADE)) {
-      this._isTransitioning = true
-    }
 
     if (this._isShown || showEvent.isDefaultPrevented()) {
       return
     }
-
     this._isShown = true
 
-    this.getReomteData()
+    const flag = this.getReomteData()
+    if (flag) {
+      return
+    }
+
+    if ($(this._element).hasClass(ClassName.FADE)) {
+      this._isTransitioning = true
+    }
+
     this._checkScrollbar()
     this._setScrollbar()
 
@@ -289,6 +293,7 @@ class ModalCopy {
     }
   }
   getReomteData() {
+    const that = this
     // http/https url
     const HttpUrlReg = /(http|ftp|https):\/\/[\w\-_]+(\.[\w\-_]+)+([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/i
 
@@ -296,22 +301,29 @@ class ModalCopy {
     const OwnUrlReg = /([\w\-\\.,@?^=%&:/~\\+#]*[\w\-\\@?^=%&/~\\+#])?/i
 
     // 远程地址
-    const url = this._config.url
+    const url = that._config.url
 
     // 远程地址无效 直接返回
     if (!url || url && !HttpUrlReg.test(url) && !OwnUrlReg.test(url)) {
       return
     }
     // 拉取远程数据
+    let flag = false
     const op = {
       url,
       contentType : Ajax.APPLICATION_X_WWW_FORM_URLENCODED,
-      data : this._config.data || {},
+      data : that._config.data || {},
       type : Ajax.POST,
       dataType: Ajax.HTML,
-      success: (res) => $(this._element.querySelector(Selector.DIALOG)).html(res ? res : '').find(Selector.MODAL_CONTENT).initUI()
+      success: (res) => $(that._element.querySelector(Selector.DIALOG)).html(res ? res : '').find(Selector.MODAL_CONTENT).initUI(),
+      error() {
+        that.hide()
+        flag = true
+      }
     }
     Ajax.send(op)
+    // eslint-disable-next-line consistent-return
+    return flag
   }
   expand(event) {
     if (event) {
@@ -338,7 +350,10 @@ class ModalCopy {
     const hideEvent = $.Event(Event.HIDE)
     $(this._element).trigger(hideEvent)
 
-    this.getReomteData()
+    const flag = this.getReomteData()
+    if (flag) {
+      return
+    }
     const expend = this._dialog.querySelector(Selector.DATA_EXPAND)
     if (expend) {
       expend.className = this._data.expand ? ClassName.EXPAND_YES : ClassName.EXPAND_NO

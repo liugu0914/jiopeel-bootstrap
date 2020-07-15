@@ -31,10 +31,13 @@ const Selector = {
   HTML      : '[target="html"]',
   CLEAR     : '[target="clear"]',
   PAGE      : '[target="page"]',
+  TREE      : '[target="tree"]',
   TOOLTIP   : '[show="tooltip"]',
   ERROR_IMG : 'img[src-error]',
-  WARN      : 'warn'
 
+  NAV_LIST_GROUP        : '.nav, .list-group',
+  ACTIVE                : '.active',
+  ACTIVE_UL             : '> li > .active'
 }
 
 const Event = {
@@ -52,7 +55,10 @@ const ClassName = {
   MODAL_CONTENT  : '.modal-content',
   PAGE_LINK      : '.page-link',
   CHECK_ALL : '.chk-all',
-  CHECK     : '.chk'
+  CHECK     : '.chk',
+  ZTREE     : 'ztree',
+  WARN      : 'warn',
+  ACTIVE        : 'active'
 }
 
 const Customer = {
@@ -73,6 +79,8 @@ const WinData = {
 const DataKey = {
   QUERY    :  `${DATA_INFO}query`
 }
+
+const JSON = window.JSON
 
 /**
  * ------------------------------------------------------------------------
@@ -98,7 +106,9 @@ class InitUI {
     this.query()
     this.form()
     this.ajax()
+    this.html()
     this.page()
+    this.tree()
   }
 
   static get VERSION() {
@@ -443,6 +453,16 @@ class InitUI {
       }
       const $this = $(event.currentTarget)
       $this.blur()
+
+      const listElement = $this.closest(Selector.NAV_LIST_GROUP)[0]
+      const activeElements = listElement && (listElement.nodeName === 'UL' || listElement.nodeName === 'OL')
+        ? $(listElement).find(Selector.ACTIVE_UL)
+        : $(listElement).children(Selector.ACTIVE)
+      if (activeElements) {
+        $(activeElements).removeClass(ClassName.ACTIVE)
+      }
+      $this.addClass(ClassName.ACTIVE)
+
       const data = $this.data()
       const config = {
         ...data,
@@ -475,6 +495,88 @@ class InitUI {
         op.data.pageNum = pageNum
         Ajax.send(op)
       })
+    })
+  }
+
+  // ----------------------------------------------------------------------
+  //  tree js处理
+  // ----------------------------------------------------------------------
+  tree() {
+    $(Selector.TREE, this._element).each((index, element)  => {
+      if (!element.classList.contains(ClassName.ZTREE)) {
+        element.classList.add(ClassName.ZTREE)
+      }
+      const $this = $(element)
+      const check = element.hasAttribute('check')
+      const edit = element.hasAttribute('edit')
+      let autoParam = element.getAttribute('auto')
+      autoParam = autoParam && typeof autoParam !== 'string' ? JSON.parse(autoParam) : ['id', 'pid']
+      const url = $this.data('url')
+      const params = $(this).data()
+      if (params && params.url) {
+        delete params.url
+      }
+      const setting = {// ztree config
+        view: {
+          ...edit ? {
+            addHoverDom,
+            removeHoverDom
+          } : {},
+          selectedMulti: false
+        },
+        check: {
+          enable: check
+        },
+        edit: {
+          enable: edit
+        },
+        data: {
+          simpleData: {
+            enable: true,
+            idKey: 'id',
+            pIdKey: 'pid',
+            rootPId: 0
+          }
+        },
+        asyc :{
+          enable :true,
+          otherParam :params,
+          autoParam,
+          type :Ajax.POST,
+          url,
+          dataType :Ajax.JSON
+        },
+        callback:{}
+      }
+      let newCount = 1
+
+      function addHoverDom(treeId, treeNode) {
+        const sObj = $(`#${treeNode.tId}_span`)
+        if (treeNode.editNameFlag || $(`#addBtn_${treeNode.tId}`).length > 0) {
+          return
+        }
+        const addStr = `<span class='button add' id='addBtn_${treeNode.tId
+        }' title='add node' onfocus='this.blur();'></span>`
+        sObj.after(addStr)
+        const btn = $(`#addBtn_${treeNode.tId}`)
+        const h = 100
+        if (btn) {
+          btn.on('click', () => {
+            const zTree = $.fn.zTree.getZTreeObj('treeDemo')
+            zTree.addNodes(treeNode, {
+              id: h + newCount,
+              pId: treeNode.id,
+              name: `new node${newCount++}`
+            })
+            return false
+          })
+        }
+      }
+
+      function removeHoverDom(treeId, treeNode) {
+        $(`#addBtn_${treeNode.tId}`).off().remove()
+      }
+      $.fn.zTree.init($this, setting)
     })
   }
 
@@ -531,7 +633,7 @@ class InitUI {
       }
     }
 
-    const warn = config[Selector.WARN]
+    const warn = config[ClassName.WARN]
     if (warn) {
       const confirm  = new Confirm(warn)
       confirm.ok(() => this._ajaxUsefulMain($this, config)).show()

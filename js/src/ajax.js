@@ -153,7 +153,10 @@ class Ajax {
       dataType: JSON,
       data: {},
       success : this.success,
-      error : this.error
+      error : this.error(op.error)
+    }
+    if (op.error) {
+      delete op.error
     }
     op = typeof op === 'object' && op ? op : {}
     const opData = typeof op.data === 'object' && op.data ? op.data : {}
@@ -186,14 +189,22 @@ class Ajax {
     }
     return Toast.suc(result.message)
   }
-  static error(XMLHttpRequest) {
-    if (XMLHttpRequest && XMLHttpRequest.responseText) {
-      const responseText = XMLHttpRequest.responseText
-      if (Tool.isJSON(responseText)) {
-        return Toast.err(window.JSON.parse(responseText).message)
+  static error(callback) {
+    return function (XMLHttpRequest) {
+      let errMsg = '未知错误'
+      if (XMLHttpRequest && XMLHttpRequest.responseText) {
+        const responseText = XMLHttpRequest.responseText
+        if (Tool.isJSON(responseText)) {
+          errMsg = window.JSON.parse(responseText).message
+        } else {
+          errMsg = responseText
+        }
+      }
+      Toast.err(errMsg)
+      if (callback && typeof callback === 'function') {
+        callback()
       }
     }
-    return Toast.err('未知错误')
   }
 
   static setCookie(key, value, exdays) {

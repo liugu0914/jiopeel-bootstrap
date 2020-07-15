@@ -420,7 +420,7 @@
         heading: '错误',
         text: text,
         position: 'top-center',
-        hideAfter: 1500,
+        hideAfter: 3000,
         stack: false,
         icon: 'error'
       };
@@ -776,19 +776,24 @@
         dataType: JSON,
         data: {},
         success: this.success,
-        error: this.error
+        error: this.error(op.error)
       };
+
+      if (op.error) {
+        delete op.error;
+      }
+
       op = typeof op === 'object' && op ? op : {};
       var opData = typeof op.data === 'object' && op.data ? op.data : {};
       var nData = {};
 
       for (var key in opData) {
-        if (key.toString().includes('.')) {
-          continue;
+        if (!key.toString().includes('.')) {
+          nData[key] = opData[key];
         }
-
-        nData.key = opData[key];
       }
+
+      op.data = nData;
 
       switch (op.contentType) {
         default:
@@ -799,7 +804,7 @@
           break;
 
         case APPLICATION_JSON:
-          op.data = window.JSON.stringify(nData);
+          op.data = window.JSON.stringify(op.data);
           break;
       }
 
@@ -815,16 +820,26 @@
       return Toast.suc(result.message);
     };
 
-    Ajax.error = function error(XMLHttpRequest) {
-      if (XMLHttpRequest && XMLHttpRequest.responseText) {
-        var responseText = XMLHttpRequest.responseText;
+    Ajax.error = function error(callback) {
+      return function (XMLHttpRequest) {
+        var errMsg = '未知错误';
 
-        if (Tool.isJSON(responseText)) {
-          return Toast.err(window.JSON.parse(responseText).message);
+        if (XMLHttpRequest && XMLHttpRequest.responseText) {
+          var responseText = XMLHttpRequest.responseText;
+
+          if (Tool.isJSON(responseText)) {
+            errMsg = window.JSON.parse(responseText).message;
+          } else {
+            errMsg = responseText;
+          }
         }
-      }
 
-      return Toast.err('未知错误');
+        Toast.err(errMsg);
+
+        if (callback && typeof callback === 'function') {
+          callback();
+        }
+      };
     };
 
     Ajax.setCookie = function setCookie(key, value, exdays) {
@@ -6901,8 +6916,7 @@
         }
 
         if (!data) {
-          data = new Tooltip(this, _config);
-          $(this).data(DATA_KEY$7, data);
+          data = new Tooltip(this, _config); // $(this).data(DATA_KEY, data)
         }
 
         if (typeof config === 'string') {
