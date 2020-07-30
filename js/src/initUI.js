@@ -3,6 +3,7 @@ import Ajax from './ajax.js'
 import Confirm from './confirm.js'
 import Toast from './toast.js'
 import Tool from './tool.js'
+import Tree from './tree.js'
 
 
 /**
@@ -77,10 +78,9 @@ const WinData = {
 }
 
 const DataKey = {
-  QUERY    :  `${DATA_INFO}query`
+  QUERY    :  `${DATA_INFO}query`,
+  TREE     :  'tree'
 }
-
-const JSON = window.JSON
 
 /**
  * ------------------------------------------------------------------------
@@ -503,94 +503,26 @@ class InitUI {
   // ----------------------------------------------------------------------
   tree() {
     $(Selector.TREE, this._element).each((index, element)  => {
-      if (!element.classList.contains(ClassName.ZTREE)) {
-        element.classList.add(ClassName.ZTREE)
-      }
-      const $this = $(element)
-      const check = element.hasAttribute('check')
-      const edit = element.hasAttribute('edit')
-      let autoParam = element.getAttribute('auto')
-      autoParam = autoParam && typeof autoParam !== 'string' ? JSON.parse(autoParam) : ['id', 'pid']
-      const url = $this.data('url')
-      const params = $(this).data()
-      if (params && params.url) {
-        delete params.url
-      }
-      const setting = {// ztree config
-        view: {
-          ...edit ? {
-            addHoverDom,
-            removeHoverDom
-          } : {},
-          selectedMulti: false
-        },
-        check: {
-          enable: check
-        },
-        edit: {
-          enable: edit
-        },
-        data: {
-          simpleData: {
-            enable: true,
-            idKey: 'id',
-            pIdKey: 'pid',
-            rootPId: 0
-          }
-        },
-        asyc :{
-          enable :true,
-          otherParam :params,
-          autoParam,
-          type :Ajax.POST,
-          url,
-          dataType :Ajax.JSON
-        },
-        callback:{}
-      }
-      let newCount = 1
-
-      function addHoverDom(treeId, treeNode) {
-        const sObj = $(`#${treeNode.tId}_span`)
-        if (treeNode.editNameFlag || $(`#addBtn_${treeNode.tId}`).length > 0) {
-          return
-        }
-        const addStr = `<span class='button add' id='addBtn_${treeNode.tId
-        }' title='add node' onfocus='this.blur();'></span>`
-        sObj.after(addStr)
-        const btn = $(`#addBtn_${treeNode.tId}`)
-        const h = 100
-        if (btn) {
-          btn.on('click', () => {
-            const zTree = $.fn.zTree.getZTreeObj('treeDemo')
-            zTree.addNodes(treeNode, {
-              id: h + newCount,
-              pId: treeNode.id,
-              name: `new node${newCount++}`
-            })
-            return false
-          })
-        }
-      }
-
-      function removeHoverDom(treeId, treeNode) {
-        $(`#addBtn_${treeNode.tId}`).off().remove()
-      }
-      $.fn.zTree.init($this, setting)
+      const tree = new Tree(element)
+      $(element).data(DataKey.TREE, tree)
     })
   }
 
   // ----------------------------------------------------------------------
   //  ajax默认success方法
   // ----------------------------------------------------------------------
-  _suc($this, config) {
+  _suc($this, config, callback) {
     if (config.dataType === Ajax.HTML) {
       return function (result) {
         if (!config.target) {
           return
         }
         const $target = ($this.closest(ClassName.QUERY_MAIN) || document).find(`${config.target}:first`)
+        $target.html(result)
         $target.data(DATA_KEY, new InitUI($target.html(result)[0]))
+        if (callback && typeof callback === 'function') {
+          callback($this, config)
+        }
       }
     }
     return function (result) {
@@ -599,11 +531,18 @@ class InitUI {
       }
       // 后台返回参数 result
       const flag = result.result
-      if (flag) {
-        $('#modal').modal('hide')
-        $('#query').trigger('click')
+
+      if (callback && typeof callback === 'function') {
+        callback($this, config)
+      } else if (flag) {
+        if ($('#modal').length > 0) {
+          $('#modal').modal('hide')
+        }
+        if ($('#query').length > 0) {
+          $('#query').trigger('click')
+        }
       }
-      return flag ? Toast.suc(result.message) : Toast.err(result.message)
+      return Toast[flag ? 'suc' : 'err'](result.message)
     }
   }
 
@@ -630,6 +569,8 @@ class InitUI {
         }
       } else if (typeof rescus === 'boolean' && !rescus) {
         return
+      } else {
+        return
       }
     }
 
@@ -650,16 +591,16 @@ class InitUI {
     const bef = Tool.eval(config[Customer.BEFORE])
     if (typeof bef === 'function') {
       const obj = bef($this, config.data)
+      if (!bef) {
+        return
+      }
       config.data = {
         ...config.data,
         ...typeof obj === 'object' && obj ? obj : {}
       }
     }
-    let suc = Tool.eval(config[Customer.SUCCESS])
-    if (typeof suc !== 'function') {
-      suc = this._suc($this, config)
-    }
-    config.success = suc
+    const suc = Tool.eval(config[Customer.SUCCESS])
+    config.success = this._suc($this, config, suc)
     Ajax.send(config)
   }
 
@@ -668,11 +609,7 @@ class InitUI {
   // ----------------------------------------------------------------------
   static _init() {
     return this.each(function () {
-      let data = $(this).data(DATA_KEY)
-      if (!data) {
-        data = new InitUI(this)
-        $(this).data(DATA_KEY, data)
-      }
+      $(this).data(DATA_KEY, new InitUI(this))
     })
   }
 }

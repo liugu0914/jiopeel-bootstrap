@@ -83,6 +83,7 @@ class Ajax {
     }
     this.send(settings)
   }
+
   static getHTML(url, data, suc, err) {
     const settings = {
       url,
@@ -107,6 +108,7 @@ class Ajax {
     }
     this.send(settings)
   }
+
   static getJSON(url, data, suc, err) {
     const settings = {
       url,
@@ -132,6 +134,7 @@ class Ajax {
     }
     this.send(settings)
   }
+
   static getJSONHTML(url, data, suc, err) {
     const settings = {
       url,
@@ -144,6 +147,7 @@ class Ajax {
     }
     this.send(settings)
   }
+
   static send(op) {
     // 默认同步请求
     const settings = {
@@ -155,40 +159,49 @@ class Ajax {
       success : this.success,
       error : this.error(op.error)
     }
-    if (op.error) {
+    if (op) {
       delete op.error
     }
     op = typeof op === 'object' && op ? op : {}
     const opData = typeof op.data === 'object' && op.data ? op.data : {}
-    const nData = {}
-    for (const key in opData) {
-      if (!key.toString().includes('.')) {
-        nData[key] = opData[key]
+    let nData
+    if (opData instanceof Object) {
+      nData = {}
+      for (const key in opData) {
+        if (!key.toString().includes('.')) {
+          nData[key] = opData[key]
+        }
       }
+    } else {
+      nData = opData
     }
-    op.data = nData
+
     switch (op.contentType) {
       default:
       case APPLICATION_X_WWW_FORM_URLENCODED:
+        nData = Tool.toSerialize(nData)
         break
       case MULTIPART_FORM_DATA:
         break
       case APPLICATION_JSON:
-        op.data = window.JSON.stringify(op.data)
+        nData = window.JSON.stringify(nData)
         break
     }
+    op.data = nData
     op = {
       ...settings,
       ...op
     }
     $.ajax(op)
   }
+
   static success(result) {
     if (!result || typeof result !== 'object') {
       return Toast.err('未知错误')
     }
     return Toast.suc(result.message)
   }
+
   static error(callback) {
     return function (XMLHttpRequest) {
       let errMsg = '未知错误'
@@ -200,10 +213,10 @@ class Ajax {
           errMsg = responseText
         }
       }
-      Toast.err(errMsg)
       if (callback && typeof callback === 'function') {
-        callback()
+        callback(XMLHttpRequest)
       }
+      return Toast.err(errMsg)
     }
   }
 
@@ -233,4 +246,5 @@ class Ajax {
     return ''
   }
 }
+
 export default Ajax

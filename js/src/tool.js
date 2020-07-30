@@ -24,11 +24,76 @@ class Tool {
         continue
       }
       const name = array[index].name
-      const value  = array[index].value || ''
-      data[name] = data[name] ? [value,
-        ...$.isArray(data[name]) ? data[name] : [data[name]]] : value
+      const value  = array[index].value
+      data[name] = data[name] ? [...$.isArray(data[name]) ? data[name] : [data[name]], value] : value
     }
     return data
+  }
+
+  // ----------------------------------------------------------------------
+  // Object序列化
+  // ----------------------------------------------------------------------
+  static toSerialize(obj) {
+    let serialize = ''
+    if (!obj || !(obj instanceof Object)) {
+      return serialize
+    }
+    for (const key in obj) {
+      if (!Object.prototype.hasOwnProperty.call(obj, key)) {
+        continue
+      }
+      const data = obj[key]
+
+      if (data instanceof Array) {
+        for (const index in data) {
+          if (!Object.prototype.hasOwnProperty.call(data, index)) {
+            continue
+          }
+          const value = data[index]
+          serialize = serialize ? serialize.concat(`&${key}=${value}`) : `${key}=${value}`
+        }
+      } else if (typeof data === 'object') {
+        continue
+      } else {
+        serialize = serialize ? serialize.concat(`&${key}=${data}`) : `${key}=${data}`
+      }
+    }
+    return serialize
+  }
+
+  // ----------------------------------------------------------------------
+  // 数组数据转为Object
+  // ----------------------------------------------------------------------
+  static toObject(target, ...needs) {
+    if (!target) {
+      return {}
+    }
+    if (!(target instanceof Array)) {
+      return target
+    }
+    const data = {}
+    let flag = false
+    for (const index in target) {
+      if (!Object.prototype.hasOwnProperty.call(target, index)) {
+        continue
+      }
+      const targetData = target[index]
+      if (typeof targetData !== 'object') {
+        flag = true
+        break
+      }
+      for (const key in targetData) {
+        if (!Object.prototype.hasOwnProperty.call(targetData, key)) {
+          continue
+        }
+        if (needs && needs.length > 0 && !needs.includes(key)) {
+          continue
+        }
+        const value = targetData[key]
+        data[key] = data[key] ? [...$.isArray(data[key]) ? data[key] : [data[key]], value] : value
+      }
+    }
+    return flag ? target : data
   }
   // ----------------------------------------------------------------------
   // 字符串转function

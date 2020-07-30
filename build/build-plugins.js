@@ -40,7 +40,7 @@ const bsPlugins = {
   Popover: path.resolve(__dirname, '../js/src/popover.js'),
   ScrollSpy: path.resolve(__dirname, '../js/src/scrollspy.js'),
   Tab: path.resolve(__dirname, '../js/src/tab.js'),
-  // Toast: path.resolve(__dirname, '../js/src/toast.js'),
+  Tree: path.resolve(__dirname, '../js/src/tree.js'),
   Tool: path.resolve(__dirname, '../js/src/tool.js'),
   Tooltip: path.resolve(__dirname, '../js/src/tooltip.js'),
   Util: path.resolve(__dirname, '../js/src/util.js')
@@ -84,6 +84,12 @@ function build(plugin) {
   if (plugin !== 'Util') {
     external.push(bsPlugins.Util)
     globals[bsPlugins.Util] = 'Util'
+  }
+
+  // Do not bundle Tooltip in Popover
+  if (plugin !== 'Tree') {
+    external.push(bsPlugins.Tree)
+    globals[bsPlugins.Tree] = 'Tree'
   }
 
   // Do not bundle Tooltip in Popover
