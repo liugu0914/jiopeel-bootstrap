@@ -1,9 +1,11 @@
 import $ from 'jquery'
 import Ajax from './ajax.js'
 import Confirm from './confirm.js'
+import Editor from './editor.js'
 import Toast from './toast.js'
 import Tool from './tool.js'
 import Tree from './tree.js'
+import Upload from './upload.js'
 
 
 /**
@@ -33,6 +35,8 @@ const Selector = {
   CLEAR     : '[target="clear"]',
   PAGE      : '[target="page"]',
   TREE      : '[target="tree"]',
+  EDITOR    : '[target="editor"]',
+  FILE      : '[target="file"]',
   TOOLTIP   : '[show="tooltip"]',
   ERROR_IMG : 'img[src-error]',
 
@@ -79,7 +83,9 @@ const WinData = {
 
 const DataKey = {
   QUERY    :  `${DATA_INFO}query`,
-  TREE     :  'tree'
+  TREE     :  'tree',
+  EDITOR   :  'editor',
+  FILE     :  'file'
 }
 
 /**
@@ -109,6 +115,8 @@ class InitUI {
     this.html()
     this.page()
     this.tree()
+    this.file()
+    this.editor()
   }
 
   static get VERSION() {
@@ -502,9 +510,29 @@ class InitUI {
   //  tree js处理
   // ----------------------------------------------------------------------
   tree() {
-    $(Selector.TREE, this._element).each((index, element)  => {
+    $(Selector.TREE, this._element).each((_index, element)  => {
       const tree = new Tree(element)
       $(element).data(DataKey.TREE, tree)
+    })
+  }
+
+  // ----------------------------------------------------------------------
+  //  file js处理
+  // ----------------------------------------------------------------------
+  file() {
+    $(Selector.FILE, this._element).each((_index, element)  => {
+      const file = new Upload(element)
+      $(element).data(DataKey.FILE, file)
+    })
+  }
+
+  // ----------------------------------------------------------------------
+  //  富文本编辑器 js处理
+  // ----------------------------------------------------------------------
+  editor() {
+    $(Selector.EDITOR, this._element).each((index, element)  => {
+      const editor = Editor.init(element)
+      $(element).data(DataKey.EDITOR, editor)
     })
   }
 

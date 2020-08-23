@@ -4,17 +4,19 @@
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
   */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./ajax.js'), require('./confirm.js'), require('./toast.js'), require('./tool.js'), require('./tree.js')) :
-  typeof define === 'function' && define.amd ? define(['jquery', './ajax.js', './confirm.js', './toast.js', './tool.js', './tree.js'], factory) :
-  (global = global || self, global.InitUI = factory(global.jQuery, global.Ajax, global.Confirm, global.Toast, global.Tool, global.Tree));
-}(this, function ($, Ajax, Confirm, Toast, Tool, Tree) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./ajax.js'), require('./confirm.js'), require('./editor.js'), require('./toast.js'), require('./tool.js'), require('./tree.js'), require('./upload.js')) :
+  typeof define === 'function' && define.amd ? define(['jquery', './ajax.js', './confirm.js', './editor.js', './toast.js', './tool.js', './tree.js', './upload.js'], factory) :
+  (global = global || self, global.InitUI = factory(global.jQuery, global.Ajax, global.Confirm, global.Editor, global.Toast, global.Tool, global.Tree, global.Upload));
+}(this, function ($, Ajax, Confirm, Editor, Toast, Tool, Tree, Upload) { 'use strict';
 
   $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
   Ajax = Ajax && Ajax.hasOwnProperty('default') ? Ajax['default'] : Ajax;
   Confirm = Confirm && Confirm.hasOwnProperty('default') ? Confirm['default'] : Confirm;
+  Editor = Editor && Editor.hasOwnProperty('default') ? Editor['default'] : Editor;
   Toast = Toast && Toast.hasOwnProperty('default') ? Toast['default'] : Toast;
   Tool = Tool && Tool.hasOwnProperty('default') ? Tool['default'] : Tool;
   Tree = Tree && Tree.hasOwnProperty('default') ? Tree['default'] : Tree;
+  Upload = Upload && Upload.hasOwnProperty('default') ? Upload['default'] : Upload;
 
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
@@ -91,6 +93,8 @@
     CLEAR: '[target="clear"]',
     PAGE: '[target="page"]',
     TREE: '[target="tree"]',
+    EDITOR: '[target="editor"]',
+    FILE: '[target="file"]',
     TOOLTIP: '[show="tooltip"]',
     ERROR_IMG: 'img[src-error]',
     NAV_LIST_GROUP: '.nav, .list-group',
@@ -131,7 +135,9 @@
   };
   var DataKey = {
     QUERY: DATA_INFO + "query",
-    TREE: 'tree'
+    TREE: 'tree',
+    EDITOR: 'editor',
+    FILE: 'file'
     /**
      * ------------------------------------------------------------------------
      *  初始化方法 init()
@@ -165,6 +171,8 @@
       this.html();
       this.page();
       this.tree();
+      this.file();
+      this.editor();
     }
 
     var _proto = InitUI.prototype;
@@ -590,9 +598,29 @@
     ;
 
     _proto.tree = function tree() {
-      $(Selector.TREE, this._element).each(function (index, element) {
+      $(Selector.TREE, this._element).each(function (_index, element) {
         var tree = new Tree(element);
         $(element).data(DataKey.TREE, tree);
+      });
+    } // ----------------------------------------------------------------------
+    //  file js处理
+    // ----------------------------------------------------------------------
+    ;
+
+    _proto.file = function file() {
+      $(Selector.FILE, this._element).each(function (_index, element) {
+        var file = new Upload(element);
+        $(element).data(DataKey.FILE, file);
+      });
+    } // ----------------------------------------------------------------------
+    //  富文本编辑器 js处理
+    // ----------------------------------------------------------------------
+    ;
+
+    _proto.editor = function editor() {
+      $(Selector.EDITOR, this._element).each(function (index, element) {
+        var editor = Editor.init(element);
+        $(element).data(DataKey.EDITOR, editor);
       });
     } // ----------------------------------------------------------------------
     //  ajax默认success方法

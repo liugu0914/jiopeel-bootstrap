@@ -33,6 +33,7 @@ const bsPlugins = {
   Collapse: path.resolve(__dirname, '../js/src/collapse.js'),
   Confirm: path.resolve(__dirname, '../js/src/confirm.js'),
   Dropdown: path.resolve(__dirname, '../js/src/dropdown.js'),
+  Editor: path.resolve(__dirname, '../js/src/editor.js'),
   InitUI: path.resolve(__dirname, '../js/src/initUI.js'),
   Toast: path.resolve(__dirname, '../js/src/toast.js'),
   Modal: path.resolve(__dirname, '../js/src/modal.js'),
@@ -43,7 +44,8 @@ const bsPlugins = {
   Tree: path.resolve(__dirname, '../js/src/tree.js'),
   Tool: path.resolve(__dirname, '../js/src/tool.js'),
   Tooltip: path.resolve(__dirname, '../js/src/tooltip.js'),
-  Util: path.resolve(__dirname, '../js/src/util.js')
+  Util: path.resolve(__dirname, '../js/src/util.js'),
+  Upload: path.resolve(__dirname, '../js/src/upload.js')
 }
 const rootPath = TEST ? '../js/coverage/dist/' : '../js/dist/'
 
@@ -86,10 +88,22 @@ function build(plugin) {
     globals[bsPlugins.Util] = 'Util'
   }
 
-  // Do not bundle Tooltip in Popover
+  // Do not bundle Tooltip in plugins
   if (plugin !== 'Tree') {
     external.push(bsPlugins.Tree)
     globals[bsPlugins.Tree] = 'Tree'
+  }
+
+  // Do not bundle Upload in plugins
+  if (plugin !== 'Upload') {
+    external.push(bsPlugins.Upload)
+    globals[bsPlugins.Upload] = 'Upload'
+  }
+
+  // Do not bundle Editor in Popover
+  if (plugin !== 'Editor') {
+    external.push(bsPlugins.Editor)
+    globals[bsPlugins.Editor] = 'Editor'
   }
 
   // Do not bundle Tooltip in Popover
