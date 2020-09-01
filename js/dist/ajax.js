@@ -187,8 +187,11 @@
         contentType: APPLICATION_X_WWW_FORM_URLENCODED,
         dataType: JSON,
         data: {},
+        headers: {
+          ajax: NAME
+        },
         success: this.success,
-        error: this.error(op.error)
+        error: this.error(op)
       };
 
       if (op) {
@@ -238,7 +241,7 @@
       return Toast.suc(result.message);
     };
 
-    Ajax.error = function error(callback) {
+    Ajax.error = function error(op) {
       return function (XMLHttpRequest) {
         var errMsg = '未知错误';
 
@@ -248,12 +251,16 @@
           if (Tool.isJSON(responseText)) {
             errMsg = window.JSON.parse(responseText).message;
           } else {
-            errMsg = responseText;
+            errMsg = responseText; // 页面的请求错误
+
+            if (op.dataType === HTML) {
+              return op.success(errMsg);
+            }
           }
         }
 
-        if (callback && typeof callback === 'function') {
-          callback(XMLHttpRequest);
+        if (op.callback && typeof op.callback === 'function') {
+          op.callback(XMLHttpRequest);
         }
 
         return Toast.err(errMsg);

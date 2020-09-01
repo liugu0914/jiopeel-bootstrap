@@ -730,6 +730,48 @@
       }
 
       return data;
+    } // ----------------------------------------------------------------------
+    //  ztree 简单数据 转 子孙节点数据
+    // ----------------------------------------------------------------------
+    ;
+
+    Tool.rebliud = function rebliud(sNodes, key, parentKey, childKey) {
+      if (!key) {
+        key = 'id';
+      }
+
+      if (!parentKey) {
+        parentKey = 'pid';
+      }
+
+      if (!childKey) {
+        childKey = 'children';
+      }
+
+      var result = [];
+      var tmpMap = {}; // 先把数组整理成map的形式
+
+      for (var i = 0, l = sNodes.length; i < l; i++) {
+        // key为 对象的"id"的值， value就是就该对象
+        tmpMap[sNodes[i][key]] = sNodes[i];
+      } // 遍历，组织成子孙节点
+
+
+      for (var _i = 0, _l = sNodes.length; _i < _l; _i++) {
+        // 查找当前节点的父节点是否存在，如果存在就把当前节点放入到父节点的子孙列表中
+        if (tmpMap[sNodes[_i][parentKey]] && sNodes[_i][key] !== sNodes[_i][parentKey]) {
+          if (!tmpMap[sNodes[_i][parentKey]][childKey]) {
+            tmpMap[sNodes[_i][parentKey]][childKey] = [];
+          }
+
+          tmpMap[sNodes[_i][parentKey]][childKey].push(sNodes[_i]);
+        } else {
+          // 如果不存在就直接放入到一个新的列表中
+          result.push(sNodes[_i]);
+        }
+      }
+
+      return result;
     };
 
     return Tool;
@@ -859,8 +901,11 @@
         contentType: APPLICATION_X_WWW_FORM_URLENCODED,
         dataType: JSON,
         data: {},
+        headers: {
+          ajax: NAME$1
+        },
         success: this.success,
-        error: this.error(op.error)
+        error: this.error(op)
       };
 
       if (op) {
@@ -910,7 +955,7 @@
       return Toast.suc(result.message);
     };
 
-    Ajax.error = function error(callback) {
+    Ajax.error = function error(op) {
       return function (XMLHttpRequest) {
         var errMsg = '未知错误';
 
@@ -920,12 +965,16 @@
           if (Tool.isJSON(responseText)) {
             errMsg = window.JSON.parse(responseText).message;
           } else {
-            errMsg = responseText;
+            errMsg = responseText; // 页面的请求错误
+
+            if (op.dataType === HTML) {
+              return op.success(errMsg);
+            }
           }
         }
 
-        if (callback && typeof callback === 'function') {
-          callback(XMLHttpRequest);
+        if (op.callback && typeof op.callback === 'function') {
+          op.callback(XMLHttpRequest);
         }
 
         return Toast.err(errMsg);
@@ -5145,6 +5194,8 @@
     SHOWN: "shown" + EVENT_KEY$5,
     CLICK: "click" + EVENT_KEY$5,
     CLICK_DATA_API: "click" + EVENT_KEY$5 + DATA_API_KEY$4,
+    MOUSEOVER: "mouseover" + EVENT_KEY$5,
+    MOUSEOUT: "mouseout" + EVENT_KEY$5,
     KEYDOWN_DATA_API: "keydown" + EVENT_KEY$5 + DATA_API_KEY$4,
     KEYUP_DATA_API: "keyup" + EVENT_KEY$5 + DATA_API_KEY$4
   };
@@ -5617,7 +5668,7 @@
    */
 
 
-  $(document).on(Event$5.KEYDOWN_DATA_API, Selector$4.DATA_TOGGLE, Dropdown._dataApiKeydownHandler).on(Event$5.KEYDOWN_DATA_API, Selector$4.MENU, Dropdown._dataApiKeydownHandler).on(Event$5.CLICK_DATA_API + " " + Event$5.KEYUP_DATA_API, Dropdown._clearMenus).on(Event$5.CLICK_DATA_API, Selector$4.DATA_TOGGLE, function (event) {
+  $(document).on(Event$5.KEYDOWN_DATA_API, Selector$4.DATA_TOGGLE, Dropdown._dataApiKeydownHandler).on(Event$5.KEYDOWN_DATA_API, Selector$4.MENU, Dropdown._dataApiKeydownHandler).on(Event$5.CLICK_DATA_API + " " + Event$5.KEYUP_DATA_API, Dropdown._clearMenus).on(Event$5.CLICK_DATA_API + " " + Event$5.MOUSEOVER, Selector$4.DATA_TOGGLE, function (event) {
     event.preventDefault();
     event.stopPropagation();
 

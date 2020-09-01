@@ -36,6 +36,8 @@ const Event = {
   SHOWN            : `shown${EVENT_KEY}`,
   CLICK            : `click${EVENT_KEY}`,
   CLICK_DATA_API   : `click${EVENT_KEY}${DATA_API_KEY}`,
+  MOUSEOVER        : `mouseover${EVENT_KEY}`,
+  MOUSEOUT         : `mouseout${EVENT_KEY}`,
   KEYDOWN_DATA_API : `keydown${EVENT_KEY}${DATA_API_KEY}`,
   KEYUP_DATA_API   : `keyup${EVENT_KEY}${DATA_API_KEY}`
 }
@@ -519,7 +521,7 @@ $(document)
   .on(Event.KEYDOWN_DATA_API, Selector.DATA_TOGGLE, Dropdown._dataApiKeydownHandler)
   .on(Event.KEYDOWN_DATA_API, Selector.MENU, Dropdown._dataApiKeydownHandler)
   .on(`${Event.CLICK_DATA_API} ${Event.KEYUP_DATA_API}`, Dropdown._clearMenus)
-  .on(Event.CLICK_DATA_API, Selector.DATA_TOGGLE, function (event) {
+  .on(`${Event.CLICK_DATA_API} ${Event.MOUSEOVER}`, Selector.DATA_TOGGLE, function (event) {
     event.preventDefault()
     event.stopPropagation()
     Dropdown._jQueryInterface.call($(this), 'toggle')

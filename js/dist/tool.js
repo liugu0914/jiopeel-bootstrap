@@ -250,6 +250,48 @@
       }
 
       return data;
+    } // ----------------------------------------------------------------------
+    //  ztree 简单数据 转 子孙节点数据
+    // ----------------------------------------------------------------------
+    ;
+
+    Tool.rebliud = function rebliud(sNodes, key, parentKey, childKey) {
+      if (!key) {
+        key = 'id';
+      }
+
+      if (!parentKey) {
+        parentKey = 'pid';
+      }
+
+      if (!childKey) {
+        childKey = 'children';
+      }
+
+      var result = [];
+      var tmpMap = {}; // 先把数组整理成map的形式
+
+      for (var i = 0, l = sNodes.length; i < l; i++) {
+        // key为 对象的"id"的值， value就是就该对象
+        tmpMap[sNodes[i][key]] = sNodes[i];
+      } // 遍历，组织成子孙节点
+
+
+      for (var _i = 0, _l = sNodes.length; _i < _l; _i++) {
+        // 查找当前节点的父节点是否存在，如果存在就把当前节点放入到父节点的子孙列表中
+        if (tmpMap[sNodes[_i][parentKey]] && sNodes[_i][key] !== sNodes[_i][parentKey]) {
+          if (!tmpMap[sNodes[_i][parentKey]][childKey]) {
+            tmpMap[sNodes[_i][parentKey]][childKey] = [];
+          }
+
+          tmpMap[sNodes[_i][parentKey]][childKey].push(sNodes[_i]);
+        } else {
+          // 如果不存在就直接放入到一个新的列表中
+          result.push(sNodes[_i]);
+        }
+      }
+
+      return result;
     };
 
     return Tool;

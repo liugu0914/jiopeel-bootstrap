@@ -2,6 +2,7 @@ import $ from 'jquery'
 import Ajax from './ajax.js'
 import Confirm from './confirm.js'
 import Editor from './editor.js'
+import Menu from './menu.js'
 import Toast from './toast.js'
 import Tool from './tool.js'
 import Tree from './tree.js'
@@ -15,77 +16,71 @@ import Upload from './upload.js'
  */
 
 
-const NAME                = 'initUI'
-const VERSION             = '1.0.0'
-const DATA_KEY            = 'lyc.init'
-const EVENT_KEY           = `.${DATA_KEY}`
-const DATA_INFO            = `${DATA_KEY}.`
-const DATA_API_KEY        = '.data-api'
-const JQUERY_NO_CONFLICT  = $.fn[NAME]
+const NAME = 'initUI'
+const VERSION = '1.0.0'
+const DATA_KEY = 'lyc.init'
+const EVENT_KEY = `.${DATA_KEY}`
+const DATA_INFO = `${DATA_KEY}.`
+const DATA_API_KEY = '.data-api'
+const JQUERY_NO_CONFLICT = $.fn[NAME]
 
 const Selector = {
-  MENU      : '[target="menu"]',
-  TAB       : '[target="tab"]',
-  SEARCH    : '[target="search"]',
-  SELECT    : '[target="select"]',
-  QUERY     : '[target="query"]',
-  FORM      : '[target="form"]',
-  AJAX      : '[target="ajax"]',
-  HTML      : '[target="html"]',
-  CLEAR     : '[target="clear"]',
-  PAGE      : '[target="page"]',
-  TREE      : '[target="tree"]',
-  EDITOR    : '[target="editor"]',
-  FILE      : '[target="file"]',
-  TOOLTIP   : '[show="tooltip"]',
-  ERROR_IMG : 'img[src-error]',
+  MENU: '[target="menu"]',
+  TAB: '[target="tab"]',
+  SEARCH: '[target="search"]',
+  SELECT: '[target="select"]',
+  QUERY: '[target="query"]',
+  FORM: '[target="form"]',
+  AJAX: '[target="ajax"]',
+  HTML: '[target="html"]',
+  CLEAR: '[target="clear"]',
+  PAGE: '[target="page"]',
+  TREE: '[target="tree"]',
+  EDITOR: '[target="editor"]',
+  FILE: '[target="file"]',
+  TOOLTIP: '[show="tooltip"]',
+  ERROR_IMG: 'img[src-error]',
 
-  NAV_LIST_GROUP        : '.nav, .list-group',
-  ACTIVE                : '.active',
-  ACTIVE_UL             : '> li > .active'
+  INIT: 'data-init',
+  NAV_LIST_GROUP: '.nav, .list-group',
+  ACTIVE: '.active',
+  ACTIVE_UL: '> li > .active'
 }
 
 const Event = {
-  CLICK_QUERY       : `click.query${EVENT_KEY}${DATA_API_KEY}`,
-  CLICK_FORM        : `click.form${EVENT_KEY}${DATA_API_KEY}`,
-  CLICK_AJAX        : `click.ajax${EVENT_KEY}${DATA_API_KEY}`,
-  CLICK_DATA_API    : `click${EVENT_KEY}${DATA_API_KEY}`,
-  CHANGE_DATA_API   : `change${EVENT_KEY}${DATA_API_KEY}`,
-  ERROR_IMG         : `error.img${EVENT_KEY}${DATA_API_KEY}`
+  CLICK_MENU: `click.menu${EVENT_KEY}${DATA_API_KEY}`,
+  CLICK_QUERY: `click.query${EVENT_KEY}${DATA_API_KEY}`,
+  CLICK_FORM: `click.form${EVENT_KEY}${DATA_API_KEY}`,
+  CLICK_AJAX: `click.ajax${EVENT_KEY}${DATA_API_KEY}`,
+  CLICK_DATA_API: `click${EVENT_KEY}${DATA_API_KEY}`,
+  CHANGE_DATA_API: `change${EVENT_KEY}${DATA_API_KEY}`,
+  ERROR_IMG: `error.img${EVENT_KEY}${DATA_API_KEY}`
 }
 
 const ClassName = {
-  QUERY_MAIN     : '.query-main',
-  QUERY_DATA     : '.query-data',
-  MODAL_CONTENT  : '.modal-content',
-  PAGE_LINK      : '.page-link',
-  CHECK_ALL : '.chk-all',
-  CHECK     : '.chk',
-  ZTREE     : 'ztree',
-  WARN      : 'warn',
-  ACTIVE        : 'active'
+  QUERY_MAIN: '.query-main',
+  QUERY_DATA: '.query-data',
+  MODAL_CONTENT: '.modal-content',
+  PAGE_LINK: '.page-link',
+  CHECK_ALL: '.chk-all',
+  CHECK: '.chk',
+  ZTREE: 'ztree',
+  WARN: 'warn',
+  ACTIVE: 'active'
 }
 
 const Customer = {
-  CHECK          : 'chk',
-  CUSTOM         : 'cus',
-  BEFORE         : 'bef',
-  SUCCESS        : 'suc'
-}
-
-const WinData = {
-  nextInit: 0,
-  nextHeight: 0,
-  winW: 767.98,
-  winM: 1024,
-  winH: 1200
+  CHECK: 'chk',
+  CUSTOM: 'cus',
+  BEFORE: 'bef',
+  SUCCESS: 'suc'
 }
 
 const DataKey = {
-  QUERY    :  `${DATA_INFO}query`,
-  TREE     :  'tree',
-  EDITOR   :  'editor',
-  FILE     :  'file'
+  QUERY: `${DATA_INFO}query`,
+  TREE: 'tree',
+  EDITOR: 'editor',
+  FILE: 'file'
 }
 
 /**
@@ -97,10 +92,10 @@ const DataKey = {
  */
 
 class InitUI {
-  constructor(element) {
+  constructor(element, callback, start) {
     this._element = element
     this.verifyJQuery()
-    // this.resizeWin()
+    this.menu()
     this.imgError()
     this.tooltip()
     if (this.verifySelect2()) {
@@ -117,6 +112,13 @@ class InitUI {
     this.tree()
     this.file()
     this.editor()
+
+    this._callback = callback && typeof callback === 'function' ? callback : this.initFuc()
+    // eslint-disable-next-line no-undefined
+    if (start === true || start === null || start === undefined) {
+      this.start()
+    }
+    return this
   }
 
   static get VERSION() {
@@ -129,26 +131,16 @@ class InitUI {
     }
   }
 
-  resizeWin() {
-    if (this._element !== document) {
-      return
-    }
-    $(window).on('resize', () => {
-      const winWidth = window.innerWidth
-      const $body = $('body')
-      const enlarged = 'enlarged'
-      // var sidebar = 'sidebar-enable';
-      if (winWidth > WinData.winM) {
-        $body.attr('class', '')
+  // ----------------------------------------------------------------------
+  //  打开菜单操作
+  // ----------------------------------------------------------------------
+  menu() {
+    $(Selector.MENU, this._element).on(Event.CLICK_MENU, (event) => {
+      if (event) {
+        event.preventDefault()
       }
-      if (winWidth <= WinData.winM) {
-        $body.attr('class', enlarged)
-      }
-      if (winWidth <= WinData.winW) {
-        $body.attr('class', '')
-      }
+      return new Menu(event.currentTarget)
     })
-    $(window).trigger('resize')
   }
 
   // ----------------------------------------------------------------------
@@ -181,7 +173,7 @@ class InitUI {
   tooltip() {
     if ($.fn.tooltip) {
       $(Selector.TOOLTIP, this._element).tooltip({
-        bgcolor : 'dark'
+        bgcolor: 'dark'
       })
     }
   }
@@ -239,7 +231,7 @@ class InitUI {
       const id = $this.data('id')
       const text = $this.data('text')
       const op = {
-        placeholder :'请选择',
+        placeholder: '请选择',
         // allowClear : true,
         ajax: {
           url: $this.data('url'),
@@ -384,8 +376,8 @@ class InitUI {
         ...$form.data(),
         ...$this.data(),
         ...{
-          url : $form.attr('action'),
-          data : Tool.formData($form),
+          url: $form.attr('action'),
+          data: Tool.formData($form),
           type: Ajax.POST,
           dataType: Ajax.HTML
         }
@@ -417,8 +409,8 @@ class InitUI {
         ...$form.data(),
         ...$this.data(),
         ...{
-          url : $form.attr('action'),
-          data : Tool.formData($form),
+          url: $form.attr('action'),
+          data: Tool.formData($form),
           type: Ajax.POST,
           dataType: Ajax.JSON
         }
@@ -441,7 +433,7 @@ class InitUI {
       const config = {
         ...data,
         ...{
-          url : $this.attr('href') || $this.data('url'),
+          url: $this.attr('href') || $this.data('url'),
           data,
           type: Ajax.POST,
           dataType: Ajax.JSON
@@ -475,7 +467,7 @@ class InitUI {
       const config = {
         ...data,
         ...{
-          url : $this.attr('href') || $this.data('url'),
+          url: $this.attr('href') || $this.data('url'),
           data,
           type: Ajax.POST,
           dataType: Ajax.HTML
@@ -489,10 +481,10 @@ class InitUI {
   //  分页器js处理
   // ----------------------------------------------------------------------
   page() {
-    $(Selector.PAGE, this._element).each((index, element)  => {
+    $(Selector.PAGE, this._element).each((index, element) => {
       const $main = $(element).closest(ClassName.QUERY_MAIN)
       const op = $main.data(DataKey.QUERY) || {
-        data :{}
+        data: {}
       }
       $(element).find(ClassName.PAGE_LINK).on(Event.CHANGE_DATA_API, (event) => {
         if (event) {
@@ -510,7 +502,7 @@ class InitUI {
   //  tree js处理
   // ----------------------------------------------------------------------
   tree() {
-    $(Selector.TREE, this._element).each((_index, element)  => {
+    $(Selector.TREE, this._element).each((_index, element) => {
       const tree = new Tree(element)
       $(element).data(DataKey.TREE, tree)
     })
@@ -520,7 +512,7 @@ class InitUI {
   //  file js处理
   // ----------------------------------------------------------------------
   file() {
-    $(Selector.FILE, this._element).each((_index, element)  => {
+    $(Selector.FILE, this._element).each((_index, element) => {
       const file = new Upload(element)
       $(element).data(DataKey.FILE, file)
     })
@@ -530,7 +522,7 @@ class InitUI {
   //  富文本编辑器 js处理
   // ----------------------------------------------------------------------
   editor() {
-    $(Selector.EDITOR, this._element).each((index, element)  => {
+    $(Selector.EDITOR, this._element).each((index, element) => {
       const editor = Editor.init(element)
       $(element).data(DataKey.EDITOR, editor)
     })
@@ -604,7 +596,7 @@ class InitUI {
 
     const warn = config[ClassName.WARN]
     if (warn) {
-      const confirm  = new Confirm(warn)
+      const confirm = new Confirm(warn)
       confirm.ok(() => this._ajaxUsefulMain($this, config)).show()
     } else {
       this._ajaxUsefulMain($this, config)
@@ -632,12 +624,31 @@ class InitUI {
     Ajax.send(config)
   }
 
+  start() {
+    if (this._callback && typeof this._callback === 'function') {
+      this._callback()
+    }
+  }
+
+  initFuc() {
+    return function () {
+      const ele = $(this._element).find(`[${Selector.INIT}]:first`)
+      if (ele.length === 0) {
+        return
+      }
+      const init = Tool.eval(ele.attr(Selector.INIT))
+      if (init && typeof init === 'function') {
+        init(this._element)
+      }
+    }
+  }
+
   // ----------------------------------------------------------------------
   //  默认启动方法init()
   // ----------------------------------------------------------------------
-  static _init() {
+  static _init(callback, start) {
     return this.each(function () {
-      $(this).data(DATA_KEY, new InitUI(this))
+      $(this).data(DATA_KEY, new InitUI(this, callback, start))
     })
   }
 }

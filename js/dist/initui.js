@@ -4,15 +4,16 @@
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
   */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./ajax.js'), require('./confirm.js'), require('./editor.js'), require('./toast.js'), require('./tool.js'), require('./tree.js'), require('./upload.js')) :
-  typeof define === 'function' && define.amd ? define(['jquery', './ajax.js', './confirm.js', './editor.js', './toast.js', './tool.js', './tree.js', './upload.js'], factory) :
-  (global = global || self, global.InitUI = factory(global.jQuery, global.Ajax, global.Confirm, global.Editor, global.Toast, global.Tool, global.Tree, global.Upload));
-}(this, function ($, Ajax, Confirm, Editor, Toast, Tool, Tree, Upload) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./ajax.js'), require('./confirm.js'), require('./editor.js'), require('./menu.js'), require('./toast.js'), require('./tool.js'), require('./tree.js'), require('./upload.js')) :
+  typeof define === 'function' && define.amd ? define(['jquery', './ajax.js', './confirm.js', './editor.js', './menu.js', './toast.js', './tool.js', './tree.js', './upload.js'], factory) :
+  (global = global || self, global.InitUI = factory(global.jQuery, global.Ajax, global.Confirm, global.Editor, global.Menu, global.Toast, global.Tool, global.Tree, global.Upload));
+}(this, function ($, Ajax, Confirm, Editor, Menu, Toast, Tool, Tree, Upload) { 'use strict';
 
   $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
   Ajax = Ajax && Ajax.hasOwnProperty('default') ? Ajax['default'] : Ajax;
   Confirm = Confirm && Confirm.hasOwnProperty('default') ? Confirm['default'] : Confirm;
   Editor = Editor && Editor.hasOwnProperty('default') ? Editor['default'] : Editor;
+  Menu = Menu && Menu.hasOwnProperty('default') ? Menu['default'] : Menu;
   Toast = Toast && Toast.hasOwnProperty('default') ? Toast['default'] : Toast;
   Tool = Tool && Tool.hasOwnProperty('default') ? Tool['default'] : Tool;
   Tree = Tree && Tree.hasOwnProperty('default') ? Tree['default'] : Tree;
@@ -97,11 +98,13 @@
     FILE: '[target="file"]',
     TOOLTIP: '[show="tooltip"]',
     ERROR_IMG: 'img[src-error]',
+    INIT: 'data-init',
     NAV_LIST_GROUP: '.nav, .list-group',
     ACTIVE: '.active',
     ACTIVE_UL: '> li > .active'
   };
   var Event = {
+    CLICK_MENU: "click.menu" + EVENT_KEY + DATA_API_KEY,
     CLICK_QUERY: "click.query" + EVENT_KEY + DATA_API_KEY,
     CLICK_FORM: "click.form" + EVENT_KEY + DATA_API_KEY,
     CLICK_AJAX: "click.ajax" + EVENT_KEY + DATA_API_KEY,
@@ -126,13 +129,6 @@
     BEFORE: 'bef',
     SUCCESS: 'suc'
   };
-  var WinData = {
-    nextInit: 0,
-    nextHeight: 0,
-    winW: 767.98,
-    winM: 1024,
-    winH: 1200
-  };
   var DataKey = {
     QUERY: DATA_INFO + "query",
     TREE: 'tree',
@@ -151,10 +147,10 @@
   var InitUI =
   /*#__PURE__*/
   function () {
-    function InitUI(element) {
+    function InitUI(element, callback, start) {
       this._element = element;
-      this.verifyJQuery(); // this.resizeWin()
-
+      this.verifyJQuery();
+      this.menu();
       this.imgError();
       this.tooltip();
 
@@ -173,6 +169,13 @@
       this.tree();
       this.file();
       this.editor();
+      this._callback = callback && typeof callback === 'function' ? callback : this.initFuc(); // eslint-disable-next-line no-undefined
+
+      if (start === true || start === null || start === undefined) {
+        this.start();
+      }
+
+      return this;
     }
 
     var _proto = InitUI.prototype;
@@ -181,31 +184,19 @@
       if (!$ || !$.fn) {
         throw new TypeError('JQuery is not load, plz check out');
       }
-    };
+    } // ----------------------------------------------------------------------
+    //  打开菜单操作
+    // ----------------------------------------------------------------------
+    ;
 
-    _proto.resizeWin = function resizeWin() {
-      if (this._element !== document) {
-        return;
-      }
-
-      $(window).on('resize', function () {
-        var winWidth = window.innerWidth;
-        var $body = $('body');
-        var enlarged = 'enlarged'; // var sidebar = 'sidebar-enable';
-
-        if (winWidth > WinData.winM) {
-          $body.attr('class', '');
+    _proto.menu = function menu() {
+      $(Selector.MENU, this._element).on(Event.CLICK_MENU, function (event) {
+        if (event) {
+          event.preventDefault();
         }
 
-        if (winWidth <= WinData.winM) {
-          $body.attr('class', enlarged);
-        }
-
-        if (winWidth <= WinData.winW) {
-          $body.attr('class', '');
-        }
+        return new Menu(event.currentTarget);
       });
-      $(window).trigger('resize');
     } // ----------------------------------------------------------------------
     //  图片错误加载
     // ----------------------------------------------------------------------
@@ -734,14 +725,36 @@
       var suc = Tool.eval(config[Customer.SUCCESS]);
       config.success = this._suc($this, config, suc);
       Ajax.send(config);
+    };
+
+    _proto.start = function start() {
+      if (this._callback && typeof this._callback === 'function') {
+        this._callback();
+      }
+    };
+
+    _proto.initFuc = function initFuc() {
+      return function () {
+        var ele = $(this._element).find("[" + Selector.INIT + "]:first");
+
+        if (ele.length === 0) {
+          return;
+        }
+
+        var init = Tool.eval(ele.attr(Selector.INIT));
+
+        if (init && typeof init === 'function') {
+          init(this._element);
+        }
+      };
     } // ----------------------------------------------------------------------
     //  默认启动方法init()
     // ----------------------------------------------------------------------
     ;
 
-    InitUI._init = function _init() {
+    InitUI._init = function _init(callback, start) {
       return this.each(function () {
-        $(this).data(DATA_KEY, new InitUI(this));
+        $(this).data(DATA_KEY, new InitUI(this, callback, start));
       });
     };
 

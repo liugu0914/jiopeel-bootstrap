@@ -7,12 +7,12 @@
 
 'use strict'
 
-const path    = require('path')
-const rollup  = require('rollup')
-const babel   = require('rollup-plugin-babel')
-const banner  = require('./banner.js')
+const path = require('path')
+const rollup = require('rollup')
+const babel = require('rollup-plugin-babel')
+const banner = require('./banner.js')
 
-const TEST    = process.env.NODE_ENV === 'test'
+const TEST = process.env.NODE_ENV === 'test'
 const plugins = [
   babel({
     exclude: 'node_modules/**', // Only transpile our source code
@@ -36,6 +36,7 @@ const bsPlugins = {
   Editor: path.resolve(__dirname, '../js/src/editor.js'),
   InitUI: path.resolve(__dirname, '../js/src/initUI.js'),
   Toast: path.resolve(__dirname, '../js/src/toast.js'),
+  Menu: path.resolve(__dirname, '../js/src/menu.js'),
   Modal: path.resolve(__dirname, '../js/src/modal.js'),
   ModalCopy: path.resolve(__dirname, '../js/src/modalcopy.js'),
   Popover: path.resolve(__dirname, '../js/src/popover.js'),
@@ -98,6 +99,12 @@ function build(plugin) {
   if (plugin !== 'Upload') {
     external.push(bsPlugins.Upload)
     globals[bsPlugins.Upload] = 'Upload'
+  }
+
+  // Do not bundle Menu in plugins
+  if (plugin !== 'Menu') {
+    external.push(bsPlugins.Menu)
+    globals[bsPlugins.Menu] = 'Menu'
   }
 
   // Do not bundle Editor in Popover
