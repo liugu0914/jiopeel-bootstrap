@@ -28,6 +28,10 @@ class Upload {
   }
 
   _init() {
+    // eslint-disable-next-line no-undef
+    if (!plupload) {
+      throw new TypeError('plupload is not load, plz check out')
+    }
     // 上传图片
     let ele = this._element
     if (!ele) {
@@ -58,7 +62,6 @@ class Upload {
     // eslint-disable-next-line no-undef
     const loader = new plupload.Uploader({ // 实例化一个plupload上传对象
       runtimes: 'html5,html4,flash,silverlight',
-      // eslint-disable-next-line camelcase
       browse_button: ele,
       url: URL,
       filters: {
