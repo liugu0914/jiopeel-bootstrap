@@ -100,9 +100,6 @@
           mime_types: [{
             title: 'Image files',
             extensions: 'jpg,gif,png,svg'
-          }, {
-            title: 'Zip files',
-            extensions: 'zip'
           }]
         }
       });
@@ -116,8 +113,9 @@
 
       if (typeof chk === 'function') {
         loader._chk = chk;
-      } // 用户选择文件时触发
+      }
 
+      loader._element = this._element; // 用户选择文件时触发
 
       loader.bind('FilesAdded', this.fileAdded); // 文件上传成功的时候触发
 
@@ -158,7 +156,7 @@
       }
 
       if (uploader._suc && typeof uploader._suc === 'function') {
-        uploader._suc(fr);
+        uploader._suc(fr, uploader._element,uploader);
       }
     };
 

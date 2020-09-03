@@ -37,7 +37,8 @@ const Selector = {
   MENU_BODY: '#page-content',
   ACTIVE: 'active',
   LEFT_MENU: '.metismenu',
-  CLOSE: '.cs.cs-guanbi'
+  CLOSE: '.cs.cs-guanbi',
+  BODY_CLASS: '.iframe-content'
 }
 
 /**
@@ -68,6 +69,13 @@ class Menu {
     const data = $(this._element).data()
     const $header = $(Selector.MENU_HEADER)
     const $body = $(Selector.MENU_BODY)
+    if (!data[Customer.URL]) {
+      data[Customer.URL] =  $(this._element).attr('href')
+    }
+    if (!data[Customer.MENUID]) {
+      data[Customer.MENUID] = new Date().getTime()
+      $(this._element).data(Customer.MENUID, data[Customer.MENUID])
+    }
     if ($header.length === 0 || $body.length === 0 || !data[Customer.URL]) {
       return
     }
@@ -82,9 +90,12 @@ class Menu {
       headerDiv = headerDiv.replace(new RegExp(`{{${Customer.ICON}}}`, 'g'), data[Customer.ICON] ? `<i class ="${data[Customer.ICON]}"></i>` : '')
       headerDiv = headerDiv.replace(new RegExp(`{{${Customer.NAME}}}`, 'g'), data[Customer.NAME])
       $a = $(headerDiv).appendTo($header)
+    } else {
+      $a.trigger($.Event(Event.CLICK_DATA_API))
+      return
     }
 
-    let $b = $body.find(select)
+    let $b = $body.find(select + Selector.BODY_CLASS)
     if ($b.find(select).length === 0) {
       // 生产身体
       let bodyDiv = HTML_CONTEXT.BODY
@@ -144,14 +155,14 @@ class Menu {
     // eslint-disable-next-line no-nested-ternary
     const $round = $a.prev().length !== 0 ? $a.prev() : $a.next().length !== 0 ? $a.next() : null
     const $preva = $a.hasClass(Selector.ACTIVE) ? $round : null
-    const $body = $(Selector.MENU_BODY).find(select).eq(0)
+    const $body = $(Selector.MENU_BODY).find(select + Selector.BODY_CLASS).eq(0)
     // 关闭自身
     $a.remove()
     $body.remove()
 
     if ($preva && $preva.length !== 0) {
       $preva.addClass(Selector.ACTIVE)
-      const prevSelect = `[data-${Customer.MENUID} = ${$preva.data(Customer.MENUID)}]`
+      const prevSelect = `[data-${Customer.MENUID} = ${$preva.data(Customer.MENUID)}]${Selector.BODY_CLASS}`
       const $prevbody = $(Selector.MENU_BODY).find(prevSelect).eq(0)
       $prevbody.addClass(Selector.ACTIVE)
     }
@@ -210,7 +221,7 @@ class Menu {
     const menu$a = menu.find(select).eq(0)
     menu$a.addClass(Selector.ACTIVE)
     // 2身体操作
-    const $body = $(Selector.MENU_BODY).find(select).eq(0)
+    const $body = $(Selector.MENU_BODY).find(select + Selector.BODY_CLASS).eq(0)
     // 2.1隐藏其他
     $body.siblings().removeClass(Selector.ACTIVE)
     // 2.2显示自己

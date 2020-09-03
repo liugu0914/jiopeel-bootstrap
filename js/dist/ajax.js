@@ -242,6 +242,7 @@
     };
 
     Ajax.error = function error(op) {
+      var err = op.error;
       return function (XMLHttpRequest) {
         var errMsg = '未知错误';
 
@@ -259,8 +260,8 @@
           }
         }
 
-        if (op.callback && typeof op.callback === 'function') {
-          op.callback(XMLHttpRequest);
+        if (err && typeof err === 'function') {
+          err(XMLHttpRequest);
         }
 
         return Toast.err(errMsg);

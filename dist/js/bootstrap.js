@@ -957,6 +957,7 @@
     };
 
     Ajax.error = function error(op) {
+      var err = op.error;
       return function (XMLHttpRequest) {
         var errMsg = '未知错误';
 
@@ -974,8 +975,8 @@
           }
         }
 
-        if (op.callback && typeof op.callback === 'function') {
-          op.callback(XMLHttpRequest);
+        if (err && typeof err === 'function') {
+          err(XMLHttpRequest);
         }
 
         return Toast.err(errMsg);
@@ -3090,7 +3091,7 @@
    */
 
 
-  $(document).on(Event$5.KEYDOWN_DATA_API, Selector$4.DATA_TOGGLE, Dropdown._dataApiKeydownHandler).on(Event$5.KEYDOWN_DATA_API, Selector$4.MENU, Dropdown._dataApiKeydownHandler).on(Event$5.CLICK_DATA_API + " " + Event$5.KEYUP_DATA_API, Dropdown._clearMenus).on(Event$5.CLICK_DATA_API + " " + Event$5.MOUSEOVER, Selector$4.DATA_TOGGLE, function (event) {
+  $(document).on(Event$5.KEYDOWN_DATA_API, Selector$4.DATA_TOGGLE, Dropdown._dataApiKeydownHandler).on(Event$5.KEYDOWN_DATA_API, Selector$4.MENU, Dropdown._dataApiKeydownHandler).on(Event$5.CLICK_DATA_API + " " + Event$5.KEYUP_DATA_API, Dropdown._clearMenus).on(Event$5.CLICK_DATA_API, Selector$4.DATA_TOGGLE, function (event) {
     event.preventDefault();
     event.stopPropagation();
 

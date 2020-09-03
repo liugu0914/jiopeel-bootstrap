@@ -4,10 +4,10 @@ import Toast from './toast'
 import Tool from './tool'
 import Util from './util'
 
-const NAME                = 'upload'
-const VERSION             = '1.0.0'
-const URL                 = 'http://127.0.0.1/file/upload'
-const URL_MULTI           = 'http://127.0.0.1/file/uploads'
+const NAME = 'upload'
+const VERSION = '1.0.0'
+const URL = 'http://127.0.0.1/file/upload'
+const URL_MULTI = 'http://127.0.0.1/file/uploads'
 
 /**
  *  @author lyc
@@ -70,10 +70,6 @@ class Upload {
           {
             title: 'Image files',
             extensions: 'jpg,gif,png,svg'
-          },
-          {
-            title: 'Zip files',
-            extensions: 'zip'
           }
         ]
       }
@@ -86,6 +82,7 @@ class Upload {
     if (typeof chk === 'function') {
       loader._chk = chk
     }
+    loader._element = this._element
     // 用户选择文件时触发
     loader.bind('FilesAdded', this.fileAdded)
     // 文件上传成功的时候触发
@@ -121,7 +118,7 @@ class Upload {
       fr = datas.data
     }
     if (uploader._suc && typeof uploader._suc === 'function') {
-      uploader._suc(fr)
+      uploader._suc(fr, uploader._element)
     }
   }
 }
