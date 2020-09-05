@@ -1,7 +1,6 @@
 /*!
-  * Bootstrap editor.js v4.3.1 (https://getbootstrap.com/)
-  * Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
-  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * Bootstrap editor.js v4.3.1 (http://jiopeel.com/)
+  * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('./ajax.js')) :
@@ -35,37 +34,123 @@
   var Editor =
   /*#__PURE__*/
   function () {
-    function Editor(loader) {
+    function Editor(element) {
+      this._element = null;
+      this.editor = null;
+      this.init(element);
+      return this;
+    }
+
+    Editor.MyCustomUploadAdapterPlugin = function MyCustomUploadAdapterPlugin(editor) {
+      editor.plugins.get('FileRepository').createUploadAdapter = function (loader) {
+        return (// Configure the URL to the upload script in your back-end here!
+          new EditorPlugin(loader)
+        );
+      };
+    };
+
+    var _proto = Editor.prototype;
+
+    _proto.init = function init(selector) {
+      var _this = this;
+
+      // eslint-disable-next-line no-undef
+      if (!ClassicEditor) {
+        throw new ReferenceError("CKEditor 5  is not load! need version:" + VERSION + ", plz chk out");
+      }
+
+      this._element = typeof selector === 'string' ? document.querySelector(selector) : selector; // eslint-disable-next-line no-undef
+
+      return ClassicEditor.create(this._element, {
+        extraPlugins: [Editor.MyCustomUploadAdapterPlugin],
+        language: 'zh-cn',
+        toolbar: {
+          viewportTopOffset: this.getViewportTopOffsetConfig()
+        }
+      }).then(function (editor) {
+        _this.editor = editor; // Save for later use.
+        // 赋值
+
+        if (_this._element.value) {
+          _this.setData(_this._element.value);
+        }
+
+        editor.model.document.on('change:data', function () {
+          _this.setItem(_this.getData());
+        });
+      }).catch(function (error) {
+        // eslint-disable-next-line no-console
+        console.log(error);
+      });
+    };
+
+    _proto.getViewportTopOffsetConfig = function getViewportTopOffsetConfig() {
+      var documentElement = document.documentElement; // eslint-disable-next-line radix
+
+      return parseInt(window.getComputedStyle(documentElement).getPropertyValue('--ck-viewport-top-offset'));
+    };
+
+    _proto.getData = function getData() {
+      return this.editor.getData();
+    };
+
+    _proto.setData = function setData(html) {
+      this.editor.setData(html);
+    };
+
+    _proto.setItem = function setItem(html) {
+      this._element.value = html;
+    };
+
+    _createClass(Editor, null, [{
+      key: "NAME",
+      get: function get() {
+        return NAME;
+      }
+    }, {
+      key: "VERSION",
+      get: function get() {
+        return "CKEditor 5 version : " + VERSION;
+      }
+    }]);
+
+    return Editor;
+  }();
+
+  var EditorPlugin =
+  /*#__PURE__*/
+  function () {
+    function EditorPlugin(loader) {
       // The file loader instance to use during the upload.
       this.loader = loader;
       this.uploadUrl = UPLOAD_URL;
     }
 
-    var _proto = Editor.prototype;
+    var _proto2 = EditorPlugin.prototype;
 
-    _proto.upload = function upload() {
-      var _this = this;
+    _proto2.upload = function upload() {
+      var _this2 = this;
 
       return this.loader.file.then(function (file) {
         return new Promise(function (resolve, reject) {
-          _this._initRequest();
+          _this2._initRequest();
 
-          _this._initListeners(resolve, reject, file);
+          _this2._initListeners(resolve, reject, file);
 
-          _this._sendRequest(file);
+          _this2._sendRequest(file);
         });
       });
     } // Aborts the upload process.
     ;
 
-    _proto.abort = function abort() {
+    _proto2.abort = function abort() {
       if (this.xhr) {
         this.xhr.abort();
       }
     } // Initializes the XMLHttpRequest object using the URL passed to the constructor.
     ;
 
-    _proto._initRequest = function _initRequest() {
+    _proto2._initRequest = function _initRequest() {
       this.xhr = new XMLHttpRequest();
       var xhr = this.xhr; // Note that your request may look different. It is up to you and your editor
       // integration to choose the right communication channel. This example uses
@@ -77,7 +162,7 @@
     } // Initializes XMLHttpRequest listeners.
     ;
 
-    _proto._initListeners = function _initListeners(resolve, reject, file) {
+    _proto2._initListeners = function _initListeners(resolve, reject, file) {
       var xhr = this.xhr;
       var loader = this.loader;
       var genericErrorText = "Couldn't upload file: " + file.name + ".";
@@ -123,7 +208,7 @@
     } // Prepares the data and sends the request.
     ;
 
-    _proto._sendRequest = function _sendRequest(file) {
+    _proto2._sendRequest = function _sendRequest(file) {
       // Prepare the form data.
       var data = new FormData();
       data.append(FILENAME, file); // Important note: This is the right place to implement security mechanisms
@@ -135,32 +220,7 @@
       this.xhr.send(data);
     };
 
-    Editor.MyCustomUploadAdapterPlugin = function MyCustomUploadAdapterPlugin(editor) {
-      editor.plugins.get('FileRepository').createUploadAdapter = function (loader) {
-        return (// Configure the URL to the upload script in your back-end here!
-          new Editor(loader)
-        );
-      };
-    };
-
-    Editor.init = function init(selector) {
-      // eslint-disable-next-line no-undef
-      if (!ClassicEditor) {
-        throw new ReferenceError("CKEditor 5  is not load! need version:" + VERSION + ", plz chk out");
-      }
-
-      var target = typeof selector === 'string' ? document.querySelector(selector) : selector; // eslint-disable-next-line no-undef
-
-      return ClassicEditor.create(target, {
-        extraPlugins: [Editor.MyCustomUploadAdapterPlugin],
-        language: 'zh-cn'
-      }).catch(function (error) {
-        // eslint-disable-next-line no-console
-        console.log(error);
-      });
-    };
-
-    _createClass(Editor, null, [{
+    _createClass(EditorPlugin, null, [{
       key: "NAME",
       get: function get() {
         return NAME;
@@ -172,7 +232,7 @@
       }
     }]);
 
-    return Editor;
+    return EditorPlugin;
   }();
 
   return Editor;

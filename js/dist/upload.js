@@ -1,7 +1,6 @@
 /*!
-  * Bootstrap upload.js v4.3.1 (https://getbootstrap.com/)
-  * Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
-  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * Bootstrap upload.js v4.3.1 (http://jiopeel.com/)
+  * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('./toast.js'), require('./tool.js'), require('./util.js')) :
@@ -30,6 +29,8 @@
   }
 
   var NAME = 'upload';
+  var METHOD = 'post';
+  var FILENAME = 'file';
   var VERSION = '1.0.0';
   var URL = 'http://127.0.0.1/file/upload';
   var URL_MULTI = 'http://127.0.0.1/file/uploads';
@@ -44,14 +45,15 @@
     function Upload(element) {
       this._element = element;
       this._upload = this._init();
+      return this;
     }
 
     var _proto = Upload.prototype;
 
     _proto._init = function _init() {
       // eslint-disable-next-line no-undef
-      if (!plupload) {
-        throw new TypeError('plupload is not load, plz check out');
+      if (!Dropzone) {
+        throw new TypeError('Dropzone is not load, plz check out');
       } // 上传图片
 
 
@@ -89,75 +91,104 @@
     };
 
     _proto.uploadinit = function uploadinit(ele) {
+      // 使用 https://www.dropzonejs.com/
       // eslint-disable-next-line no-undef
-      var loader = new plupload.Uploader({
-        // 实例化一个plupload上传对象
-        runtimes: 'html5,html4,flash,silverlight',
-        browse_button: ele,
-        url: URL,
-        filters: {
-          max_file_size: '10mb',
-          mime_types: [{
-            title: 'Image files',
-            extensions: 'jpg,gif,png,svg'
-          }]
-        }
-      });
+      Dropzone.options.myAwesomeDropzone = false; // eslint-disable-next-line no-undef
+
+      Dropzone.autoDiscover = false;
+      var Multiple = ele.hasAttribute('multiple');
+      var Accept = ele.getAttribute('accept') || 'image/*,.jpg,.gif,.png,.svg,';
+      var url = Multiple ? URL_MULTI : URL; // 多选时 指定最大文件数为9 否则为1
+
+      var nine = 9;
+      var maxFiles = Multiple ? nine : 1;
+      var options = {
+        // 实例化一个Dropzone上传对象
+        url: url,
+        acceptedFiles: Accept,
+        // 上传的类型
+        uploadMultiple: Multiple,
+        // 是否允许多文件上传
+        method: METHOD,
+        // 默认post
+        paramName: FILENAME,
+        // 默认为file
+        maxFiles: maxFiles,
+        // 一次性上传的文件数量上限
+        maxFilesize: 20,
+        // MB
+        timeout: 10000,
+        // 以毫秒为单位
+        parallelUploads: 3,
+        // 并行处理多少个文件上载
+        createImageThumbnails: false,
+        // 是否应生成图像的缩略图
+        dictMaxFilesExceeded: '您最多只能上传10个文件！',
+        dictResponseError: '文件上传失败!',
+        dictInvalidFileType: '你不能上传该类型文件,文件类型只能是*.jpg,*.gif,*.png。',
+        dictFallbackMessage: '浏览器不受支持',
+        dictFileTooBig: '文件过大上传文件最大支持.' // eslint-disable-next-line no-undef
+
+      };
+      var dropzone = new Dropzone(ele, options);
       var suc = Tool.eval(ele.getAttribute('data-suc'));
 
       if (typeof suc === 'function') {
-        loader._suc = suc;
+        this._suc = suc;
       }
 
       var chk = Tool.eval(ele.getAttribute('data-chk'));
 
       if (typeof chk === 'function') {
-        loader._chk = chk;
-      }
+        this._chk = chk;
+      } // 将文件添加到列表时
 
-      loader._element = this._element; // 用户选择文件时触发
 
-      loader.bind('FilesAdded', this.fileAdded); // 文件上传成功的时候触发
+      dropzone.on('addedfile', this.fileAdded(this)); // 文件上传成功的时候触发
 
-      loader.bind('FileUploaded', this.fileSuc); // 上传出错的时候触发
+      dropzone.on('success', this.fileSuc(this)); // 上传出错的时候触发
 
-      loader.bind('Error', function () {
+      dropzone.on('error', function () {
         Toast.err('文件上传失败');
       });
-      loader.init();
-      return loader;
+      return dropzone;
     };
 
-    _proto.fileAdded = function fileAdded(uploader, files) {
-      // 检查失败
-      if (uploader._chk && typeof uploader._chk === 'function' && !uploader._chk(files)) {
-        for (var file in files) {
-          if (!Object.prototype.hasOwnProperty.call(files, file)) {
-            continue;
-          }
+    _proto.fileAdded = function fileAdded(uploader) {
+      return function (files) {
+        var preview = uploader._element.querySelector('.dz-preview');
 
-          uploader.removeFile(file);
+        if (preview) {
+          preview.remove();
         }
 
-        return;
-      } // 当选择的文件大于1 时候更改上传url
+        var flag = true; // 检查失败
 
+        if (uploader._chk && typeof uploader._chk === 'function' && !uploader._chk(files)) {
+          flag = false;
+        }
 
-      uploader.setOption('url', files.length > 1 ? URL_MULTI : URL);
-      uploader.start(); // 开始上传
+        return flag;
+      };
     };
 
-    _proto.fileSuc = function fileSuc(uploader, _file, responseObject) {
-      var fr;
-      var datas = JSON.parse(responseObject.response);
+    _proto.fileSuc = function fileSuc(uploader) {
+      return function (files, response) {
+        var fr;
 
-      if (datas && datas.data) {
-        fr = datas.data;
-      }
+        if (!Tool.isJSON(response)) {
+          Toast.err('文件上传失败');
+          return;
+        }
 
-      if (uploader._suc && typeof uploader._suc === 'function') {
-        uploader._suc(fr, uploader._element,uploader);
-      }
+        if (response.data) {
+          fr = response.data;
+        }
+
+        if (uploader._suc && typeof uploader._suc === 'function') {
+          uploader._suc(fr, uploader._element);
+        }
+      };
     };
 
     _createClass(Upload, null, [{

@@ -1,5 +1,7 @@
 import $ from 'jquery'
 import Ajax from './ajax'
+import Confirm from './confirm'
+import Tool from './tool'
 
 const NAME = 'menu'
 const DATA_KEY = 'lyc.menu'
@@ -18,7 +20,12 @@ const Customer = {
   NAME: 'name',
   ICON: 'icon',
   CLOSE: 'close',
-  SHOW: 'show'
+  SHOW: 'show',
+  CHECK: 'chk',
+  CUSTOM: 'cus',
+  BEFORE: 'bef',
+  SUCCESS: 'suc',
+  WARN: 'warn'
 }
 
 const HTML_CONTEXT = {
@@ -51,6 +58,7 @@ const Selector = {
 class Menu {
   constructor(element) {
     this._element = element
+    this.config = this.getConfig()
     this.init()
     return this
   }
@@ -62,22 +70,33 @@ class Menu {
     return Customer
   }
 
+  getConfig() {
+    const config = $(this._element).data()
+    if (!config[Customer.URL]) {
+      config[Customer.URL] = $(this._element).attr('href')
+    }
+    return config
+  }
+
   // ----------------------------------------------------------------------
   // 初始化
   // ----------------------------------------------------------------------
   init() {
-    const data = $(this._element).data()
     const $header = $(Selector.MENU_HEADER)
     const $body = $(Selector.MENU_BODY)
-    if (!data[Customer.URL]) {
-      data[Customer.URL] =  $(this._element).attr('href')
-    }
-    if (!data[Customer.MENUID]) {
-      data[Customer.MENUID] = new Date().getTime()
-      $(this._element).data(Customer.MENUID, data[Customer.MENUID])
-    }
-    if ($header.length === 0 || $body.length === 0 || !data[Customer.URL]) {
+    if ($header.length === 0 || $body.length === 0 || !this.config[Customer.URL]) {
       return
+    }
+    // 处理事件链 事件顺序:[chk , cus, bef ,suc]
+    const flag = this.chain()
+    if (!flag) { // 为false 直接结束
+      return
+    }
+    const data = this.config
+    // 菜单id不存在 则自动生成一个
+    if (!data[Customer.MENUID]) {
+      data[Customer.MENUID] = `menuid_${new Date().getTime()}`
+      $(this._element).data(Customer.MENUID, data[Customer.MENUID])
     }
     const select = `[data-${Customer.MENUID} = ${data[Customer.MENUID]}]`
     let $a = $header.find(select)
@@ -94,7 +113,10 @@ class Menu {
       $a.trigger($.Event(Event.CLICK_DATA_API))
       return
     }
-
+    $a.data({
+      ...$a.data(),
+      ...this.config
+    })
     let $b = $body.find(select + Selector.BODY_CLASS)
     if ($b.find(select).length === 0) {
       // 生产身体
@@ -111,6 +133,55 @@ class Menu {
     $a.trigger($.Event(Event.CLICK_DATA_API))
     // 关闭标签 的初始化
     $a.find(Selector.CLOSE).on(Event.CLICK_CLOSE_DATA_API, this.closeLable)
+  }
+
+  // ----------------------------------------------------------------------
+  // 事件顺序:[chk , cus, bef ,suc]
+  // ----------------------------------------------------------------------
+  chain() {
+    const chk = Tool.eval(this.config[Customer.CHECK])
+    if (typeof chk === 'function') {
+      const flag = chk($(this._element), this.config)
+      if (typeof flag === 'boolean' && !flag) {
+        return false
+      }
+    }
+    // 自定义函数式  用于封装数据
+    const cus = Tool.eval(this.config[Customer.CUSTOM])
+    if (cus && typeof cus === 'object' && typeof cus.fuc === 'function') {
+      const rescus = cus.fuc.call(this._element, ...cus.args)
+      if (rescus && typeof rescus === 'object') {
+        this.config = {
+          ...this.config,
+          ...rescus
+        }
+      } else if (typeof rescus === 'boolean' && !rescus) {
+        return false
+      } else {
+        return false
+      }
+    }
+
+    const warn = this.config[Customer.WARN]
+    if (warn) {
+      const confirm = new Confirm(warn)
+      confirm.ok(() => this._chainOver($(this._element), this.config)).show()
+    } else {
+      this._chainOver($(this._element), this.config)
+    }
+    return true
+  }
+
+  _chainOver($this, config) {
+    const bef = Tool.eval(config[Customer.BEFORE])
+    if (typeof bef === 'function') {
+      const obj = bef($this, config)
+      this.config = {
+        ...config,
+        ...typeof obj === 'object' && obj ? obj : {}
+      }
+    }
+    this.config[Customer.SUCCESS] = Tool.eval(config[Customer.SUCCESS])
   }
 
   // ----------------------------------------------------------------------
@@ -147,6 +218,9 @@ class Menu {
       const $header = $(Selector.MENU_HEADER)
       const $a = $header.find(`a.${Selector.ACTIVE}`)
       menuId = $a.data(Customer.MENUID)
+    }
+    if (!menuId) {
+      return
     }
     // 1头部操作
     const select = `[data-${Customer.MENUID} = ${menuId}]`
@@ -209,6 +283,9 @@ class Menu {
       const $a = $header.find(`a.${Selector.ACTIVE}`)
       menuId = $a.data(Customer.MENUID)
     }
+    if (!menuId) {
+      return
+    }
     const select = `[data-${Customer.MENUID} = ${menuId}]`
     const $this = $(Selector.MENU_HEADER).find(select)
     // 1.1隐藏其他
@@ -226,18 +303,35 @@ class Menu {
     $body.siblings().removeClass(Selector.ACTIVE)
     // 2.2显示自己
     $body.addClass(Selector.ACTIVE)
-    // ajax 请求页面
-    const bData = $body.data()
+    // jq深复制
+    const bData = $.extend(true, {}, $body.data())
     const show = bData[Customer.SHOW] || false
+    const array = []
+    for (const ckey in Customer) {
+      if (array.indexOf(Customer[ckey]) < 0) {
+        array.push(Customer[ckey])
+      }
+    }
+    for (const key in bData) {
+      if (array.indexOf(key) > -1) {
+        delete bData[key]
+      }
+    }
     if (!show || flag === true) {
-      Ajax.getHTML(bData[Customer.URL], bData, Menu.suc($body), Menu.err(menuId))
+      Ajax.getHTML($body.data(Customer.URL), bData, Menu.suc($this, $body), Menu.err(menuId))
     }
   }
 
-  static suc($body) {
+  static suc($header, $body) {
+    const config = $header.data()
+    const suc = config[Customer.SUCCESS]
     return (result) => {
       $body.data(Customer.SHOW, true)
-      $body.html(result).initUI()
+      const content = $body.html(result)
+      content.initUI()
+      if (typeof suc === 'function') {
+        suc($(content), config)
+      }
     }
   }
 

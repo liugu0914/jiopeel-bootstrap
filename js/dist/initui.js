@@ -1,7 +1,6 @@
 /*!
-  * Bootstrap initui.js v4.3.1 (https://getbootstrap.com/)
-  * Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
-  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * Bootstrap initui.js v4.3.1 (http://jiopeel.com/)
+  * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./ajax.js'), require('./confirm.js'), require('./editor.js'), require('./menu.js'), require('./toast.js'), require('./tool.js'), require('./tree.js'), require('./upload.js')) :
@@ -451,13 +450,16 @@
         if ($this.closest('form').length !== 0) {
           $form = $this.closest('form');
         } else if ($this.closest(ClassName.QUERY_MAIN).find('form').length !== 0) {
-          $form = $this.closest(ClassName.QUERY_MAIN).find('form');
+          $form = $this.closest(ClassName.QUERY_MAIN).find('form').eq(0);
         } else {
           return;
         }
 
-        var config = _objectSpread({}, $form.data(), $this.data(), {
-          url: $form.attr('action'),
+        var data = $this.data();
+        var url = data.url ? data.url : $this.attr('href');
+
+        var config = _objectSpread({}, $form.data(), data, {
+          url: $form.attr('action') || url,
           data: Tool.formData($form),
           type: Ajax.POST,
           dataType: Ajax.HTML
@@ -487,13 +489,18 @@
         if ($this.closest('form').length !== 0) {
           $form = $this.closest('form');
         } else if ($this.closest(ClassName.MODAL_CONTENT).find('form').length !== 0) {
-          $form = $this.closest(ClassName.MODAL_CONTENT).find('form');
+          $form = $this.closest(ClassName.MODAL_CONTENT).find('form').eq(0);
+        } else if ($this.closest(ClassName.QUERY_MAIN).find('form').length !== 0) {
+          $form = $this.closest(ClassName.QUERY_MAIN).find('form').eq(0);
         } else {
           return;
         }
 
-        var config = _objectSpread({}, $form.data(), $this.data(), {
-          url: $form.attr('action'),
+        var data = $this.data();
+        var url = data.url ? data.url : $this.attr('href');
+
+        var config = _objectSpread({}, $form.data(), data, {
+          url: $form.attr('action') || url,
           data: Tool.formData($form),
           type: Ajax.POST,
           dataType: Ajax.JSON
@@ -610,7 +617,7 @@
 
     _proto.editor = function editor() {
       $(Selector.EDITOR, this._element).each(function (index, element) {
-        var editor = Editor.init(element);
+        var editor = new Editor(element);
         $(element).data(DataKey.EDITOR, editor);
       });
     } // ----------------------------------------------------------------------

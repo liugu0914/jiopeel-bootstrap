@@ -24,7 +24,7 @@ class Tool {
         continue
       }
       const name = array[index].name
-      const value  = array[index].value
+      const value = array[index].value
       data[name] = data[name] ? [...$.isArray(data[name]) ? data[name] : [data[name]], value] : value
     }
     return data
@@ -42,19 +42,21 @@ class Tool {
       if (!Object.prototype.hasOwnProperty.call(obj, key)) {
         continue
       }
-      const data = obj[key]
+      let data = obj[key]
 
       if (data instanceof Array) {
         for (const index in data) {
           if (!Object.prototype.hasOwnProperty.call(data, index)) {
             continue
           }
-          const value = data[index]
+          let value = data[index]
+          value = encodeURIComponent(value)
           serialize = serialize ? serialize.concat(`&${key}=${value}`) : `${key}=${value}`
         }
       } else if (typeof data === 'object') {
         continue
       } else {
+        data = encodeURIComponent(data)
         serialize = serialize ? serialize.concat(`&${key}=${data}`) : `${key}=${data}`
       }
     }
@@ -104,11 +106,11 @@ class Tool {
     if (!value) {
       return fuc
     }
-    const regval =  value.match(/\(.*\)/gi)
+    const regval = value.match(/\(.*\)/gi)
 
     if (regval && regval instanceof Array && regval.length > 0) {
       const JSON = window.JSON
-      const argstr =  regval.pop()
+      const argstr = regval.pop()
       value = value.replace(argstr, '')
       args = argstr.replace(/\(|\)/g, '').split(';')
       args = args.filter((arg) => arg || arg === 0).map((arg) => JSON.parse(arg.replace(/'/g, '"')))
@@ -177,7 +179,7 @@ class Tool {
         data[name] = attrs.join(',')
       }
     } else if (typeof dataName === 'string') {
-      const attrs =  $.map($chks, (element) => $(element).data(dataName))
+      const attrs = $.map($chks, (element) => $(element).data(dataName))
       data[dataName] = attrs.join(',')
     }
     return data

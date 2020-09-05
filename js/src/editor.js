@@ -1,11 +1,81 @@
 import Ajax from './ajax'
 
-const NAME                = 'edior'
-const VERSION             = '21.0.0'
-const UPLOAD_URL          = 'http://127.0.0.1/file/upload'
-const FILENAME            = 'file'
+const NAME = 'edior'
+const VERSION = '21.0.0'
+const UPLOAD_URL = 'http://127.0.0.1/file/upload'
+const FILENAME = 'file'
+
 
 class Editor {
+  constructor(element) {
+    this._element = null
+    this.editor = null
+    this.init(element)
+    return this
+  }
+
+  static get NAME() {
+    return NAME
+  }
+
+  static get VERSION() {
+    return `CKEditor 5 version : ${VERSION}`
+  }
+
+  static MyCustomUploadAdapterPlugin(editor) {
+    editor.plugins.get('FileRepository').createUploadAdapter = (loader) =>
+      // Configure the URL to the upload script in your back-end here!
+      new EditorPlugin(loader)
+  }
+
+  init(selector) {
+    // eslint-disable-next-line no-undef
+    if (!ClassicEditor) {
+      throw new ReferenceError(`CKEditor 5  is not load! need version:${VERSION}, plz chk out`)
+    }
+    this._element = typeof selector === 'string' ? document.querySelector(selector) : selector
+    // eslint-disable-next-line no-undef
+    return ClassicEditor
+      .create(this._element, {
+        extraPlugins: [Editor.MyCustomUploadAdapterPlugin],
+        language: 'zh-cn',
+        toolbar: {
+          viewportTopOffset: this.getViewportTopOffsetConfig()
+        }
+      }).then((editor) => {
+        this.editor = editor // Save for later use.
+        // 赋值
+        if (this._element.value) {
+          this.setData(this._element.value)
+        }
+        editor.model.document.on('change:data', () => {
+          this.setItem(this.getData())
+        })
+      }).catch((error) => {
+        // eslint-disable-next-line no-console
+        console.log(error)
+      })
+  }
+
+  getViewportTopOffsetConfig() {
+    const documentElement = document.documentElement
+    // eslint-disable-next-line radix
+    return parseInt(window.getComputedStyle(documentElement).getPropertyValue('--ck-viewport-top-offset'))
+  }
+
+  getData() {
+    return this.editor.getData()
+  }
+
+  setData(html) {
+    this.editor.setData(html)
+  }
+  setItem(html) {
+    this._element.value = html
+  }
+}
+
+class EditorPlugin {
   constructor(loader) {
     // The file loader instance to use during the upload.
     this.loader = loader
@@ -105,30 +175,6 @@ class Editor {
 
     // Send the request.
     this.xhr.send(data)
-  }
-
-  static MyCustomUploadAdapterPlugin(editor) {
-    editor.plugins.get('FileRepository').createUploadAdapter = (loader) =>
-    // Configure the URL to the upload script in your back-end here!
-      new Editor(loader)
-  }
-
-  static init(selector) {
-    // eslint-disable-next-line no-undef
-    if (!ClassicEditor) {
-      throw new ReferenceError(`CKEditor 5  is not load! need version:${VERSION}, plz chk out`)
-    }
-    const target = typeof selector === 'string' ? document.querySelector(selector) : selector
-    // eslint-disable-next-line no-undef
-    return ClassicEditor
-      .create(target, {
-        extraPlugins: [Editor.MyCustomUploadAdapterPlugin],
-        language: 'zh-cn'
-      })
-      .catch((error) => {
-        // eslint-disable-next-line no-console
-        console.log(error)
-      })
   }
 }
 

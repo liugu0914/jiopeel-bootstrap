@@ -368,15 +368,17 @@ class InitUI {
       if ($this.closest('form').length !== 0) {
         $form = $this.closest('form')
       } else if ($this.closest(ClassName.QUERY_MAIN).find('form').length !== 0) {
-        $form = $this.closest(ClassName.QUERY_MAIN).find('form')
+        $form = $this.closest(ClassName.QUERY_MAIN).find('form').eq(0)
       } else {
         return
       }
+      const data = $this.data()
+      const url = data.url ? data.url : $this.attr('href')
       const config = {
         ...$form.data(),
-        ...$this.data(),
+        ...data,
         ...{
-          url: $form.attr('action'),
+          url: $form.attr('action') || url,
           data: Tool.formData($form),
           type: Ajax.POST,
           dataType: Ajax.HTML
@@ -401,15 +403,19 @@ class InitUI {
       if ($this.closest('form').length !== 0) {
         $form = $this.closest('form')
       } else if ($this.closest(ClassName.MODAL_CONTENT).find('form').length !== 0) {
-        $form = $this.closest(ClassName.MODAL_CONTENT).find('form')
+        $form = $this.closest(ClassName.MODAL_CONTENT).find('form').eq(0)
+      } else if ($this.closest(ClassName.QUERY_MAIN).find('form').length !== 0) {
+        $form = $this.closest(ClassName.QUERY_MAIN).find('form').eq(0)
       } else {
         return
       }
+      const data = $this.data()
+      const url = data.url ? data.url : $this.attr('href')
       const config = {
         ...$form.data(),
-        ...$this.data(),
+        ...data,
         ...{
-          url: $form.attr('action'),
+          url: $form.attr('action') || url,
           data: Tool.formData($form),
           type: Ajax.POST,
           dataType: Ajax.JSON
@@ -523,7 +529,7 @@ class InitUI {
   // ----------------------------------------------------------------------
   editor() {
     $(Selector.EDITOR, this._element).each((index, element) => {
-      const editor = Editor.init(element)
+      const editor = new Editor(element)
       $(element).data(DataKey.EDITOR, editor)
     })
   }

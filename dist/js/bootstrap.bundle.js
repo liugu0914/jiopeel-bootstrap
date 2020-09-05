@@ -1,7 +1,6 @@
 /*!
-  * Bootstrap v4.3.1 (https://getbootstrap.com/)
-  * Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
-  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * Bootstrap v4.3.1 (http://jiopeel.com/)
+  * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('jquery')) :
@@ -554,11 +553,13 @@
             }
 
             var value = data[index];
+            value = encodeURIComponent(value);
             serialize = serialize ? serialize.concat("&" + key + "=" + value) : key + "=" + value;
           }
         } else if (typeof data === 'object') {
           continue;
         } else {
+          data = encodeURIComponent(data);
           serialize = serialize ? serialize.concat("&" + key + "=" + data) : key + "=" + data;
         }
       }

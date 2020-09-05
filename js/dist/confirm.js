@@ -1,7 +1,6 @@
 /*!
-  * Bootstrap confirm.js v4.3.1 (https://getbootstrap.com/)
-  * Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
-  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * Bootstrap confirm.js v4.3.1 (http://jiopeel.com/)
+  * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./util.js')) :

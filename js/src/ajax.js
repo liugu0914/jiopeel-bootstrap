@@ -162,8 +162,11 @@ class Ajax {
       success: this.success,
       error: this.error(op)
     }
-    if (op) {
+    if (op.error) {
       delete op.error
+    }
+    if (!op.success) {
+      delete op.success
     }
     op = typeof op === 'object' && op ? op : {}
     const opData = typeof op.data === 'object' && op.data ? op.data : {}

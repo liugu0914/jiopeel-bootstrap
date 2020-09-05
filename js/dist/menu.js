@@ -1,16 +1,17 @@
 /*!
-  * Bootstrap menu.js v4.3.1 (https://getbootstrap.com/)
-  * Copyright 2011-2020 The Bootstrap Authors (https://github.com/twbs/bootstrap/graphs/contributors)
-  * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
+  * Bootstrap menu.js v4.3.1 (http://jiopeel.com/)
+  * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./ajax.js')) :
-  typeof define === 'function' && define.amd ? define(['jquery', './ajax.js'], factory) :
-  (global = global || self, global.Menu = factory(global.jQuery, global.Ajax));
-}(this, function ($, Ajax) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./ajax.js'), require('./confirm.js'), require('./tool.js')) :
+  typeof define === 'function' && define.amd ? define(['jquery', './ajax.js', './confirm.js', './tool.js'], factory) :
+  (global = global || self, global.Menu = factory(global.jQuery, global.Ajax, global.Confirm, global.Tool));
+}(this, function ($, Ajax, Confirm, Tool) { 'use strict';
 
   $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
   Ajax = Ajax && Ajax.hasOwnProperty('default') ? Ajax['default'] : Ajax;
+  Confirm = Confirm && Confirm.hasOwnProperty('default') ? Confirm['default'] : Confirm;
+  Tool = Tool && Tool.hasOwnProperty('default') ? Tool['default'] : Tool;
 
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
@@ -77,7 +78,12 @@
     NAME: 'name',
     ICON: 'icon',
     CLOSE: 'close',
-    SHOW: 'show'
+    SHOW: 'show',
+    CHECK: 'chk',
+    CUSTOM: 'cus',
+    BEFORE: 'bef',
+    SUCCESS: 'suc',
+    WARN: 'warn'
   };
   var HTML_CONTEXT = {
     HEADER: "<a class=\"home-page\" href=\"#\" \n            data-" + Customer.URL + "=\"{{" + Customer.URL + "}}\"\n            data-" + Customer.MENUID + "=\"{{" + Customer.MENUID + "}}\">\n            {{" + Customer.ICON + "}} {{" + Customer.NAME + "}} \n            {{" + Customer.CLOSE + "}}\n            </a>",
@@ -106,31 +112,47 @@
   function () {
     function Menu(element) {
       this._element = element;
+      this.config = this.getConfig();
       this.init();
       return this;
     }
 
     var _proto = Menu.prototype;
 
-    // ----------------------------------------------------------------------
+    _proto.getConfig = function getConfig() {
+      var config = $(this._element).data();
+
+      if (!config[Customer.URL]) {
+        config[Customer.URL] = $(this._element).attr('href');
+      }
+
+      return config;
+    } // ----------------------------------------------------------------------
     // 初始化
     // ----------------------------------------------------------------------
+    ;
+
     _proto.init = function init() {
-      var data = $(this._element).data();
       var $header = $(Selector.MENU_HEADER);
       var $body = $(Selector.MENU_BODY);
 
-      if (!data[Customer.URL]) {
-        data[Customer.URL] = $(this._element).attr('href');
+      if ($header.length === 0 || $body.length === 0 || !this.config[Customer.URL]) {
+        return;
+      } // 处理事件链 事件顺序:[chk , cus, bef ,suc]
+
+
+      var flag = this.chain();
+
+      if (!flag) {
+        // 为false 直接结束
+        return;
       }
+
+      var data = this.config; // 菜单id不存在 则自动生成一个
 
       if (!data[Customer.MENUID]) {
-        data[Customer.MENUID] = new Date().getTime();
+        data[Customer.MENUID] = "menuid_" + new Date().getTime();
         $(this._element).data(Customer.MENUID, data[Customer.MENUID]);
-      }
-
-      if ($header.length === 0 || $body.length === 0 || !data[Customer.URL]) {
-        return;
       }
 
       var select = "[data-" + Customer.MENUID + " = " + data[Customer.MENUID] + "]";
@@ -150,6 +172,7 @@
         return;
       }
 
+      $a.data(_objectSpread({}, $a.data(), this.config));
       var $b = $body.find(select + Selector.BODY_CLASS);
 
       if ($b.find(select).length === 0) {
@@ -165,6 +188,64 @@
       $a.trigger($.Event(Event.CLICK_DATA_API)); // 关闭标签 的初始化
 
       $a.find(Selector.CLOSE).on(Event.CLICK_CLOSE_DATA_API, this.closeLable);
+    } // ----------------------------------------------------------------------
+    // 事件顺序:[chk , cus, bef ,suc]
+    // ----------------------------------------------------------------------
+    ;
+
+    _proto.chain = function chain() {
+      var _this = this;
+
+      var chk = Tool.eval(this.config[Customer.CHECK]);
+
+      if (typeof chk === 'function') {
+        var flag = chk($(this._element), this.config);
+
+        if (typeof flag === 'boolean' && !flag) {
+          return false;
+        }
+      } // 自定义函数式  用于封装数据
+
+
+      var cus = Tool.eval(this.config[Customer.CUSTOM]);
+
+      if (cus && typeof cus === 'object' && typeof cus.fuc === 'function') {
+        var _cus$fuc;
+
+        var rescus = (_cus$fuc = cus.fuc).call.apply(_cus$fuc, [this._element].concat(cus.args));
+
+        if (rescus && typeof rescus === 'object') {
+          this.config = _objectSpread({}, this.config, rescus);
+        } else if (typeof rescus === 'boolean' && !rescus) {
+          return false;
+        } else {
+          return false;
+        }
+      }
+
+      var warn = this.config[Customer.WARN];
+
+      if (warn) {
+        var confirm = new Confirm(warn);
+        confirm.ok(function () {
+          return _this._chainOver($(_this._element), _this.config);
+        }).show();
+      } else {
+        this._chainOver($(this._element), this.config);
+      }
+
+      return true;
+    };
+
+    _proto._chainOver = function _chainOver($this, config) {
+      var bef = Tool.eval(config[Customer.BEFORE]);
+
+      if (typeof bef === 'function') {
+        var obj = bef($this, config);
+        this.config = _objectSpread({}, config, typeof obj === 'object' && obj ? obj : {});
+      }
+
+      this.config[Customer.SUCCESS] = Tool.eval(config[Customer.SUCCESS]);
     } // ----------------------------------------------------------------------
     // i标签关闭功能触发
     // ----------------------------------------------------------------------
@@ -205,6 +286,10 @@
         var _$a = $header.find("a." + Selector.ACTIVE);
 
         menuId = _$a.data(Customer.MENUID);
+      }
+
+      if (!menuId) {
+        return;
       } // 1头部操作
 
 
@@ -274,6 +359,10 @@
         menuId = $a.data(Customer.MENUID);
       }
 
+      if (!menuId) {
+        return;
+      }
+
       var select = "[data-" + Customer.MENUID + " = " + menuId + "]";
       var $this = $(Selector.MENU_HEADER).find(select); // 1.1隐藏其他
 
@@ -290,20 +379,40 @@
 
       $body.siblings().removeClass(Selector.ACTIVE); // 2.2显示自己
 
-      $body.addClass(Selector.ACTIVE); // ajax 请求页面
+      $body.addClass(Selector.ACTIVE); // jq深复制
 
-      var bData = $body.data();
+      var bData = $.extend(true, {}, $body.data());
       var show = bData[Customer.SHOW] || false;
+      var array = [];
+
+      for (var ckey in Customer) {
+        if (array.indexOf(Customer[ckey]) < 0) {
+          array.push(Customer[ckey]);
+        }
+      }
+
+      for (var key in bData) {
+        if (array.indexOf(key) > -1) {
+          delete bData[key];
+        }
+      }
 
       if (!show || flag === true) {
-        Ajax.getHTML(bData[Customer.URL], bData, Menu.suc($body), Menu.err(menuId));
+        Ajax.getHTML($body.data(Customer.URL), bData, Menu.suc($this, $body), Menu.err(menuId));
       }
     };
 
-    Menu.suc = function suc($body) {
+    Menu.suc = function suc($header, $body) {
+      var config = $header.data();
+      var suc = config[Customer.SUCCESS];
       return function (result) {
         $body.data(Customer.SHOW, true);
-        $body.html(result).initUI();
+        var content = $body.html(result);
+        content.initUI();
+
+        if (typeof suc === 'function') {
+          suc($(content), config);
+        }
       };
     };
 
