@@ -909,8 +909,12 @@
         error: this.error(op)
       };
 
-      if (op) {
+      if (op.error) {
         delete op.error;
+      }
+
+      if (!op.success) {
+        delete op.success;
       }
 
       op = typeof op === 'object' && op ? op : {};

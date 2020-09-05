@@ -7,6 +7,7 @@ import Toast from './toast.js'
 import Tool from './tool.js'
 import Tree from './tree.js'
 import Upload from './upload.js'
+import Zoom from './zoom.js'
 
 
 /**
@@ -38,9 +39,12 @@ const Selector = {
   TREE: '[target="tree"]',
   EDITOR: '[target="editor"]',
   FILE: '[target="file"]',
+
   TOOLTIP: '[show="tooltip"]',
+  ZOOM: '[show="zoom"]',
   ERROR_IMG: 'img[src-error]',
 
+  ZOOMIMG: 'zoom-img',
   INIT: 'data-init',
   NAV_LIST_GROUP: '.nav, .list-group',
   ACTIVE: '.active',
@@ -54,7 +58,9 @@ const Event = {
   CLICK_AJAX: `click.ajax${EVENT_KEY}${DATA_API_KEY}`,
   CLICK_DATA_API: `click${EVENT_KEY}${DATA_API_KEY}`,
   CHANGE_DATA_API: `change${EVENT_KEY}${DATA_API_KEY}`,
-  ERROR_IMG: `error.img${EVENT_KEY}${DATA_API_KEY}`
+  ERROR_IMG: `error.img${EVENT_KEY}${DATA_API_KEY}`,
+  ZOOM_RESIZE: `resize.zoom${EVENT_KEY}`,
+  ZOOM_SCROLL: `scroll.zoom${EVENT_KEY}`
 }
 
 const ClassName = {
@@ -80,7 +86,8 @@ const DataKey = {
   QUERY: `${DATA_INFO}query`,
   TREE: 'tree',
   EDITOR: 'editor',
-  FILE: 'file'
+  FILE: 'file',
+  ZOOM: `${DATA_INFO}zoom`
 }
 
 /**
@@ -97,6 +104,7 @@ class InitUI {
     this.verifyJQuery()
     this.menu()
     this.imgError()
+    this.zoom()
     this.tooltip()
     if (this.verifySelect2()) {
       this.search()
@@ -164,6 +172,29 @@ class InitUI {
       })
       const error = $.Event(Event.ERROR_IMG)
       return src && src !== window.location.href ? $this.attr('src', src) : $this.trigger(error)
+    })
+  }
+
+
+  // ----------------------------------------------------------------------
+  //  图片缩放
+  // ----------------------------------------------------------------------
+  zoom() {
+    $(Selector.ZOOM, this._element).each((index, element) => {
+      const $this = $(element)
+      $this.find('img').each((_i, ele) => {
+        const data = $(ele).data(DataKey.ZOOM)
+        if (!data) {
+          const zoom = new Zoom(ele)
+          $(ele).data(DataKey.ZOOM, zoom)
+        }
+      })
+    })
+    $(window).on(Event.ZOOM_RESIZE, () => {
+      const $zoomImg = $(`#${Selector.ZOOMIMG} img`)
+      if ($zoomImg.length) {
+        $zoomImg.css(Zoom.getImageStyle(Zoom.element, true))
+      }
     })
   }
 

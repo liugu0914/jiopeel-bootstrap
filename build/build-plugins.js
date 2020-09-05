@@ -46,7 +46,8 @@ const bsPlugins = {
   Tool: path.resolve(__dirname, '../js/src/tool.js'),
   Tooltip: path.resolve(__dirname, '../js/src/tooltip.js'),
   Util: path.resolve(__dirname, '../js/src/util.js'),
-  Upload: path.resolve(__dirname, '../js/src/upload.js')
+  Upload: path.resolve(__dirname, '../js/src/upload.js'),
+  Zoom: path.resolve(__dirname, '../js/src/zoom.js')
 }
 const rootPath = TEST ? '../js/coverage/dist/' : '../js/dist/'
 
@@ -99,6 +100,12 @@ function build(plugin) {
   if (plugin !== 'Upload') {
     external.push(bsPlugins.Upload)
     globals[bsPlugins.Upload] = 'Upload'
+  }
+
+  // Do not bundle Upload in plugins
+  if (plugin !== 'Zoom') {
+    external.push(bsPlugins.Zoom)
+    globals[bsPlugins.Zoom] = 'Zoom'
   }
 
   // Do not bundle Menu in plugins

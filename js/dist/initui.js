@@ -3,10 +3,10 @@
   * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./ajax.js'), require('./confirm.js'), require('./editor.js'), require('./menu.js'), require('./toast.js'), require('./tool.js'), require('./tree.js'), require('./upload.js')) :
-  typeof define === 'function' && define.amd ? define(['jquery', './ajax.js', './confirm.js', './editor.js', './menu.js', './toast.js', './tool.js', './tree.js', './upload.js'], factory) :
-  (global = global || self, global.InitUI = factory(global.jQuery, global.Ajax, global.Confirm, global.Editor, global.Menu, global.Toast, global.Tool, global.Tree, global.Upload));
-}(this, function ($, Ajax, Confirm, Editor, Menu, Toast, Tool, Tree, Upload) { 'use strict';
+  typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('jquery'), require('./ajax.js'), require('./confirm.js'), require('./editor.js'), require('./menu.js'), require('./toast.js'), require('./tool.js'), require('./tree.js'), require('./upload.js'), require('./zoom.js')) :
+  typeof define === 'function' && define.amd ? define(['jquery', './ajax.js', './confirm.js', './editor.js', './menu.js', './toast.js', './tool.js', './tree.js', './upload.js', './zoom.js'], factory) :
+  (global = global || self, global.InitUI = factory(global.jQuery, global.Ajax, global.Confirm, global.Editor, global.Menu, global.Toast, global.Tool, global.Tree, global.Upload, global.Zoom));
+}(this, function ($, Ajax, Confirm, Editor, Menu, Toast, Tool, Tree, Upload, Zoom) { 'use strict';
 
   $ = $ && $.hasOwnProperty('default') ? $['default'] : $;
   Ajax = Ajax && Ajax.hasOwnProperty('default') ? Ajax['default'] : Ajax;
@@ -17,6 +17,7 @@
   Tool = Tool && Tool.hasOwnProperty('default') ? Tool['default'] : Tool;
   Tree = Tree && Tree.hasOwnProperty('default') ? Tree['default'] : Tree;
   Upload = Upload && Upload.hasOwnProperty('default') ? Upload['default'] : Upload;
+  Zoom = Zoom && Zoom.hasOwnProperty('default') ? Zoom['default'] : Zoom;
 
   function _defineProperties(target, props) {
     for (var i = 0; i < props.length; i++) {
@@ -96,7 +97,9 @@
     EDITOR: '[target="editor"]',
     FILE: '[target="file"]',
     TOOLTIP: '[show="tooltip"]',
+    ZOOM: '[show="zoom"]',
     ERROR_IMG: 'img[src-error]',
+    ZOOMIMG: 'zoom-img',
     INIT: 'data-init',
     NAV_LIST_GROUP: '.nav, .list-group',
     ACTIVE: '.active',
@@ -109,7 +112,9 @@
     CLICK_AJAX: "click.ajax" + EVENT_KEY + DATA_API_KEY,
     CLICK_DATA_API: "click" + EVENT_KEY + DATA_API_KEY,
     CHANGE_DATA_API: "change" + EVENT_KEY + DATA_API_KEY,
-    ERROR_IMG: "error.img" + EVENT_KEY + DATA_API_KEY
+    ERROR_IMG: "error.img" + EVENT_KEY + DATA_API_KEY,
+    ZOOM_RESIZE: "resize.zoom" + EVENT_KEY,
+    ZOOM_SCROLL: "scroll.zoom" + EVENT_KEY
   };
   var ClassName = {
     QUERY_MAIN: '.query-main',
@@ -132,7 +137,8 @@
     QUERY: DATA_INFO + "query",
     TREE: 'tree',
     EDITOR: 'editor',
-    FILE: 'file'
+    FILE: 'file',
+    ZOOM: DATA_INFO + "zoom"
     /**
      * ------------------------------------------------------------------------
      *  初始化方法 init()
@@ -151,6 +157,7 @@
       this.verifyJQuery();
       this.menu();
       this.imgError();
+      this.zoom();
       this.tooltip();
 
       if (this.verifySelect2()) {
@@ -222,6 +229,30 @@
         });
         var error = $.Event(Event.ERROR_IMG);
         return src && src !== window.location.href ? $this.attr('src', src) : $this.trigger(error);
+      });
+    } // ----------------------------------------------------------------------
+    //  图片缩放
+    // ----------------------------------------------------------------------
+    ;
+
+    _proto.zoom = function zoom() {
+      $(Selector.ZOOM, this._element).each(function (index, element) {
+        var $this = $(element);
+        $this.find('img').each(function (_i, ele) {
+          var data = $(ele).data(DataKey.ZOOM);
+
+          if (!data) {
+            var zoom = new Zoom(ele);
+            $(ele).data(DataKey.ZOOM, zoom);
+          }
+        });
+      });
+      $(window).on(Event.ZOOM_RESIZE, function () {
+        var $zoomImg = $("#" + Selector.ZOOMIMG + " img");
+
+        if ($zoomImg.length) {
+          $zoomImg.css(Zoom.getImageStyle(Zoom.element, true));
+        }
       });
     } // ----------------------------------------------------------------------
     //  提示插件 需要tooltip.js
