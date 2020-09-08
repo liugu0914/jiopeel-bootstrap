@@ -259,10 +259,21 @@ class InitUI {
   search() {
     $(Selector.SEARCH, this._element).each((index, element) => {
       const $this = $(element)
-      const id = $this.data('id')
-      const text = $this.data('text')
+      const tags = element.hasAttribute('tags') // 是否允许开始自由输入
       const op = {
         placeholder: '请选择',
+        tags,
+        createTag(params) {
+          const term = $.trim(params.term)
+          if (term === '') {
+            return null
+          }
+          return {
+            id: `tag#${term}`,
+            text: term,
+            newTag: true // add additional parameters
+          }
+        },
         // allowClear : true,
         ajax: {
           url: $this.data('url'),
@@ -302,9 +313,27 @@ class InitUI {
         return state.text && pattern.test(state.text) ? $(state.text) : state.text
       }
       $this.select2(op)
-      if ($this.hasClass('select2-hidden-accessible') && id) {
-        const option = new Option(text, id, true, true)
-        $this.append(option).trigger('change')
+      if ($this.hasClass('select2-hidden-accessible')) {
+        const id = $this.data('id')
+        const text = $this.data('text')
+        let data = $this.data('sources')
+        if (id) {
+          const option = new Option(text, id, true, true)
+          $this.append(option).trigger('change')
+        }
+        if (data) {
+          try {
+            data = Tool.isJSON(data) ? data : JSON.parse(data)
+          } catch (e) {
+            data = ''
+          }
+          // eslint-disable-next-line guard-for-in
+          for (const key in data) {
+            const ele = data[key]
+            const option = new Option(ele.text, ele.id, true, true)
+            $this.append(option)
+          }
+        }
       }
     })
   }

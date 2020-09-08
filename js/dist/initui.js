@@ -321,10 +321,25 @@
     _proto.search = function search() {
       $(Selector.SEARCH, this._element).each(function (index, element) {
         var $this = $(element);
-        var id = $this.data('id');
-        var text = $this.data('text');
+        var tags = element.hasAttribute('tags'); // 是否允许开始自由输入
+
         var op = {
           placeholder: '请选择',
+          tags: tags,
+          createTag: function createTag(params) {
+            var term = $.trim(params.term);
+
+            if (term === '') {
+              return null;
+            }
+
+            return {
+              id: "tag#" + term,
+              text: term,
+              newTag: true // add additional parameters
+
+            };
+          },
           // allowClear : true,
           ajax: {
             url: $this.data('url'),
@@ -371,9 +386,32 @@
 
         $this.select2(op);
 
-        if ($this.hasClass('select2-hidden-accessible') && id) {
-          var option = new Option(text, id, true, true);
-          $this.append(option).trigger('change');
+        if ($this.hasClass('select2-hidden-accessible')) {
+          var id = $this.data('id');
+          var text = $this.data('text');
+          var data = $this.data('tags');
+
+          if (id) {
+            var option = new Option(text, id, true, true);
+            $this.append(option).trigger('change');
+          }
+
+          if (data) {
+            try {
+              data = Tool.isJSON(data) ? data : JSON.parse(data);
+            } catch (e) {
+              data = '';
+            } // eslint-disable-next-line guard-for-in
+
+
+            for (var key in data) {
+              var ele = data[key];
+
+              var _option = new Option(ele.text, ele.id, true, true);
+
+              $this.append(_option);
+            }
+          }
         }
       });
     } // ----------------------------------------------------------------------

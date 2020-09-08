@@ -124,7 +124,10 @@
         $wrap.css(Defaults.styles.zoomContainer);
         var $overlay = $('<div class="overlay" />');
         $overlay.css(Defaults.styles.overlay);
-        var $img = $(_this._element).clone();
+        var $img = $("<img src=\"" + _this._element.src + "\"/>");
+        $img.css({
+          cursor: 'default'
+        });
         $img.css(Zoom.getImageStyle(_this._element, false));
         var $btn = $('<a target="_blank" />');
         $btn.attr('href', $img.attr('src')).text('查看原图');
@@ -185,6 +188,8 @@
         return Object.assign({}, Defaults.styles.zoomImage, style);
       }
 
+      style.width = image.naturalWidth;
+      style.height = image.naturalHeight;
       var two = 2; // Get the the coords for center of the viewport
 
       var viewportX = window.innerWidth / two;
@@ -204,7 +209,7 @@
     };
 
     Zoom.getScale = function getScale(width, height) {
-      var totalMargin = 40;
+      var totalMargin = 10;
       var scaleX = window.innerWidth / (width + totalMargin);
       var scaleY = window.innerHeight / (height + totalMargin);
       return Math.min(scaleX, scaleY);

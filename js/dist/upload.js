@@ -123,9 +123,9 @@
         // 并行处理多少个文件上载
         createImageThumbnails: false,
         // 是否应生成图像的缩略图
-        dictMaxFilesExceeded: '您最多只能上传10个文件！',
+        dictMaxFilesExceeded: "\u60A8\u6700\u591A\u53EA\u80FD\u4E0A\u4F20" + maxFiles + "\u4E2A\u6587\u4EF6\uFF01",
         dictResponseError: '文件上传失败!',
-        dictInvalidFileType: '你不能上传该类型文件,文件类型只能是*.jpg,*.gif,*.png。',
+        dictInvalidFileType: "\u4F60\u4E0D\u80FD\u4E0A\u4F20\u8BE5\u7C7B\u578B\u6587\u4EF6,\u6587\u4EF6\u7C7B\u578B\u53EA\u80FD\u662F" + Accept,
         dictFallbackMessage: '浏览器不受支持',
         dictFileTooBig: '文件过大上传文件最大支持.' // eslint-disable-next-line no-undef
 
@@ -148,8 +148,12 @@
 
       dropzone.on('success', this.fileSuc(this)); // 上传出错的时候触发
 
-      dropzone.on('error', function () {
-        Toast.err('文件上传失败');
+      dropzone.on('error', function (file, errorMessage) {
+        Toast.err(errorMessage);
+      }); // 上传完成直接清除放置区所有文件
+
+      dropzone.on('complete', function () {
+        dropzone.removeAllFiles();
       });
       return dropzone;
     };
@@ -184,6 +188,8 @@
         if (response.data) {
           fr = response.data;
         }
+
+        uploader._element.classList.add('dz-hasImg');
 
         if (uploader._suc && typeof uploader._suc === 'function') {
           uploader._suc(fr, uploader._element);

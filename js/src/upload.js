@@ -86,9 +86,9 @@ class Upload {
       timeout: 10000, // 以毫秒为单位
       parallelUploads: 3, // 并行处理多少个文件上载
       createImageThumbnails: false, // 是否应生成图像的缩略图
-      dictMaxFilesExceeded: '您最多只能上传10个文件！',
+      dictMaxFilesExceeded: `您最多只能上传${maxFiles}个文件！`,
       dictResponseError: '文件上传失败!',
-      dictInvalidFileType: '你不能上传该类型文件,文件类型只能是*.jpg,*.gif,*.png。',
+      dictInvalidFileType: `你不能上传该类型文件,文件类型只能是${Accept}`,
       dictFallbackMessage: '浏览器不受支持',
       dictFileTooBig: '文件过大上传文件最大支持.'
     }
@@ -108,8 +108,12 @@ class Upload {
     // 文件上传成功的时候触发
     dropzone.on('success', this.fileSuc(this))
     // 上传出错的时候触发
-    dropzone.on('error', () => {
-      Toast.err('文件上传失败')
+    dropzone.on('error', (file, errorMessage) => {
+      Toast.err(errorMessage)
+    })
+    // 上传完成直接清除放置区所有文件
+    dropzone.on('complete', (file) => {
+      dropzone.removeFile(file)
     })
     return dropzone
   }
@@ -139,7 +143,7 @@ class Upload {
       if (response.data) {
         fr = response.data
       }
-
+      uploader._element.classList.add('dz-hasImg')
       if (uploader._suc && typeof uploader._suc === 'function') {
         uploader._suc(fr, uploader._element)
       }
