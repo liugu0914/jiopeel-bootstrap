@@ -330,7 +330,7 @@ class InitUI {
           // eslint-disable-next-line guard-for-in
           for (const key in data) {
             const ele = data[key]
-            const option = new Option(ele.text, ele.id, true, true)
+            const option = new Option(ele.text || ele.name, ele.id, true, true)
             $this.append(option)
           }
         }
@@ -698,13 +698,14 @@ class InitUI {
 
   initFuc() {
     return function () {
-      const ele = $(this._element).find(`[${Selector.INIT}]:first`)
+      const _ele_ = this._element === window ? document : this._element
+      const ele = $(_ele_).find(`[${Selector.INIT}]:first`)
       if (ele.length === 0) {
         return
       }
       const init = Tool.eval(ele.attr(Selector.INIT))
       if (init && typeof init === 'function') {
-        init(this._element)
+        init(_ele_)
       }
     }
   }

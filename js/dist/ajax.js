@@ -241,7 +241,11 @@
         return Toast.err('未知错误');
       }
 
-      return Toast.suc(result.message);
+      if (result.result) {
+        return Toast.suc(result.message);
+      }
+
+      return Toast.err(result.message);
     };
 
     Ajax.error = function error(op) {

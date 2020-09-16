@@ -71,7 +71,7 @@
         _this.editor = editor; // Save for later use.
         // 赋值
 
-        if (_this._element.value) {
+        if (_this._element.value && !_this.getData()) {
           _this.setData(_this._element.value);
         }
 

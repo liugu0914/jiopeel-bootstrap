@@ -152,8 +152,8 @@
         Toast.err(errorMessage);
       }); // 上传完成直接清除放置区所有文件
 
-      dropzone.on('complete', function () {
-        dropzone.removeAllFiles();
+      dropzone.on('complete', function (file) {
+        dropzone.removeFile(file);
       });
       return dropzone;
     };

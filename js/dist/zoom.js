@@ -80,7 +80,8 @@
     SCROLL: "scroll" + EVENT_KEY
   };
   var Selector = {
-    zoomImg: 'zoom-img'
+    zoomImg: 'zoom-img',
+    modalOpen: 'modal-open'
     /**
      *  图片缩放
      *  @author lyc
@@ -142,6 +143,7 @@
         zoom.append($wrap); // transition
 
         $img.css(Zoom.getImageStyle($img.get(0), true));
+        $('body').addClass(Selector.modalOpen);
       };
     };
 
@@ -168,6 +170,10 @@
         _this2.zoomTimer = setTimeout(function () {
           $zoom.html('');
         }, n);
+
+        if ($('body').hasClass(Selector.modalOpen)) {
+          $('body').removeClass(Selector.modalOpen);
+        }
       };
     };
 

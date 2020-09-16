@@ -402,48 +402,48 @@
     } // Staticx
     ;
 
-    Toast.suc = function suc(text) {
+    Toast.suc = function suc(text, float) {
       var option = {
         heading: '成功',
         text: text,
-        position: 'top-center',
-        hideAfter: 1500,
+        position: float || 'top-center',
+        hideAfter: 2000,
         stack: false,
         icon: 'success'
       };
       return new Toast(option);
     };
 
-    Toast.err = function err(text) {
+    Toast.err = function err(text, float) {
       var option = {
         heading: '错误',
         text: text,
-        position: 'top-center',
-        hideAfter: 3000,
+        position: float || 'top-center',
+        hideAfter: 3500,
         stack: false,
         icon: 'error'
       };
       return new Toast(option);
     };
 
-    Toast.info = function info(text) {
+    Toast.info = function info(text, float) {
       var option = {
         heading: '提示',
         text: text,
-        position: 'top-center',
-        hideAfter: 1500,
+        position: float || 'top-center',
+        hideAfter: 3000,
         stack: false,
         icon: 'info'
       };
       return new Toast(option);
     };
 
-    Toast.warn = function warn(text) {
+    Toast.warn = function warn(text, float) {
       var option = {
         heading: '警告',
         text: text,
-        position: 'top-center',
-        hideAfter: 1500,
+        position: float || 'top-center',
+        hideAfter: 3000,
         stack: false,
         icon: 'warning'
       };
@@ -773,6 +773,94 @@
       }
 
       return result;
+    } // ----------------------------------------------------------------------
+    // 检查QQ格式
+    // ----------------------------------------------------------------------
+    ;
+
+    Tool.chkQQ = function chkQQ(value) {
+      var reg = /^[1-9][0-9]{4,10}$/;
+      return reg.test(value);
+    } // ----------------------------------------------------------------------
+    // 检查手机号格式
+    // ----------------------------------------------------------------------
+    ;
+
+    Tool.chkPhone = function chkPhone(value) {
+      var reg = /^1[3-9]\d{9}$/;
+      return reg.test(value);
+    } // ----------------------------------------------------------------------
+    // 检查座机电话格式
+    // ----------------------------------------------------------------------
+    ;
+
+    Tool.chkTel = function chkTel(value) {
+      var reg = /\(?\d{3,4}[) -]?\d{8}/;
+      return reg.test(value);
+    } // ----------------------------------------------------------------------
+    // 检查邮箱格式
+    // ----------------------------------------------------------------------
+    ;
+
+    Tool.chkEmail = function chkEmail(value) {
+      var reg = /^([a-zA-Z]|[0-9])(\w|-)+@[a-zA-Z0-9]+(\.[a-zA-Z]{2,4})+$/;
+      return reg.test(value);
+    } // ----------------------------------------------------------------------
+    // 检查身份证格式
+    // ----------------------------------------------------------------------
+    ;
+
+    Tool.chkIdCard = function chkIdCard(idcode) {
+      var code;
+
+      if (typeof idcode === 'number') {
+        code = "" + idcode;
+      } else if (typeof idcode === 'string') {
+        code = idcode;
+      } else {
+        return false;
+      } // 加权因子
+      // eslint-disable-next-line no-magic-numbers
+
+
+      var weightFactor = [7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2]; // 校验码
+
+      var checkCode = ['1', '0', 'X', '9', '8', '7', '6', '5', '4', '3', '2'];
+      var lastNum = 17;
+      var last = idcode[lastNum]; // 最后一位
+
+      var seventeen = code.substring(0, lastNum); // ISO 7064:1983.MOD 11-2
+      // 判断最后一位校验码是否正确
+
+      var arr = seventeen.split('');
+      var len = arr.length;
+      var num = 0;
+
+      for (var i = 0; i < len; i++) {
+        num += arr[i] * weightFactor[i];
+      } // 获取余数
+
+
+      var resisueNum = 11;
+      var resisue = num % resisueNum;
+      var lastNo = checkCode[resisue]; // 格式的正则
+      // 正则思路
+
+      /*
+      第一位不可能是0
+      第二位到第六位可以是0-9
+      第七位到第十位是年份，所以七八位为19或者20
+      十一位和十二位是月份，这两位是01-12之间的数值
+      十三位和十四位是日期，是从01-31之间的数值
+      十五，十六，十七都是数字0-9
+      十八位可能是数字0-9，也可能是X
+      */
+
+      var idcardPatter = /^[1-9][0-9]{5}([1][9][0-9]{2}|[2][0][0|1][0-9])([0][1-9]|[1][0|1|2])([0][1-9]|[1|2][0-9]|[3][0|1])[0-9]{3}([0-9]|[X])$/; // 判断格式是否正确
+
+      var format = idcardPatter.test(idcode); // 返回验证结果，校验码和格式同时正确才算是合法的身份证号码
+
+      return last === lastNo && format;
     };
 
     return Tool;
@@ -957,7 +1045,11 @@
         return Toast.err('未知错误');
       }
 
-      return Toast.suc(result.message);
+      if (result.result) {
+        return Toast.suc(result.message);
+      }
+
+      return Toast.err(result.message);
     };
 
     Ajax.error = function error(op) {

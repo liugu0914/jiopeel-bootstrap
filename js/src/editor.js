@@ -45,7 +45,7 @@ class Editor {
       }).then((editor) => {
         this.editor = editor // Save for later use.
         // 赋值
-        if (this._element.value) {
+        if (this._element.value && !this.getData()) {
           this.setData(this._element.value)
         }
         editor.model.document.on('change:data', () => {

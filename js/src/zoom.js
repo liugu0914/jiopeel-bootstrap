@@ -41,10 +41,10 @@ const Defaults = {
       border: '1px solid #e9e9e9',
       borderRadius: 2,
       fontSize: 12,
-      color: '#999'
+      color: '#e4e4e4'
     },
     btnHover: {
-      color: '#666'
+      color: '#FFF'
     }
   }
 }
@@ -57,7 +57,8 @@ const Event = {
 }
 
 const Selector = {
-  zoomImg: 'zoom-img'
+  zoomImg: 'zoom-img',
+  modalOpen: 'modal-open'
 }
 
 /**
@@ -131,6 +132,8 @@ class Zoom {
 
       // transition
       $img.css(Zoom.getImageStyle($img.get(0), true))
+
+      $('body').addClass(Selector.modalOpen)
     }
   }
 
@@ -153,6 +156,9 @@ class Zoom {
       this.zoomTimer = setTimeout(() => {
         $zoom.html('')
       }, n)
+      if ($('body').hasClass(Selector.modalOpen)) {
+        $('body').removeClass(Selector.modalOpen)
+      }
     }
   }
 
@@ -174,8 +180,6 @@ class Zoom {
       return Object.assign({}, Defaults.styles.zoomImage, style)
     }
 
-    style.width = image.naturalWidth
-    style.height = image.naturalHeight
     const two = 2
     // Get the the coords for center of the viewport
     const viewportX = window.innerWidth / two

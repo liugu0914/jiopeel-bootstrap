@@ -315,7 +315,7 @@ class ModalCopy {
       data : that._config.data || {},
       type : Ajax.POST,
       dataType: Ajax.HTML,
-      success: (res) => $(that._element.querySelector(Selector.DIALOG)).html(res ? res : '').find(Selector.MODAL_CONTENT).initUI(),
+      success: (res) => $(that._element.querySelector(Selector.DIALOG)).html(res ? res : '').initUI(),
       error() {
         that.hide()
         flag = true

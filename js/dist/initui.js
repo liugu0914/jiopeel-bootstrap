@@ -389,7 +389,7 @@
         if ($this.hasClass('select2-hidden-accessible')) {
           var id = $this.data('id');
           var text = $this.data('text');
-          var data = $this.data('tags');
+          var data = $this.data('sources');
 
           if (id) {
             var option = new Option(text, id, true, true);
@@ -407,7 +407,7 @@
             for (var key in data) {
               var ele = data[key];
 
-              var _option = new Option(ele.text, ele.id, true, true);
+              var _option = new Option(ele.text || ele.name, ele.id, true, true);
 
               $this.append(_option);
             }

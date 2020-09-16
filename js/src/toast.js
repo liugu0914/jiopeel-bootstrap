@@ -6,24 +6,24 @@ import $ from 'jquery'
  * ------------------------------------------------------------------------
  */
 
-const NAME               = 'toast'
-const VERSION            = '1.0.0'
-const DATA_KEY           = 'lyc.toast'
-const EVENT_KEY          = `.${DATA_KEY}`
+const NAME = 'toast'
+const VERSION = '1.0.0'
+const DATA_KEY = 'lyc.toast'
+const EVENT_KEY = `.${DATA_KEY}`
 const JQUERY_NO_CONFLICT = $[NAME]
 
 const Event = {
-  CLICK_DISMISS : `click.dismiss${EVENT_KEY}`
+  CLICK_DISMISS: `click.dismiss${EVENT_KEY}`
 }
 
 const PositionClasses =
-['bottom-left',
-  'bottom-right',
-  'top-right',
-  'top-left',
-  'bottom-center',
-  'top-center',
-  'mid-center']
+  ['bottom-left',
+    'bottom-right',
+    'top-right',
+    'top-left',
+    'bottom-center',
+    'top-center',
+    'mid-center']
 
 const DefaultIcons = ['success', 'error', 'info', 'warning']
 
@@ -98,7 +98,7 @@ class Toast {
     let _toastContent = ''
 
     this._toastEl = this._toastEl || $('<div></div>', {
-      class : 'jq-toast-single text-break'
+      class: 'jq-toast-single text-break'
     })
 
     // For the loader on top
@@ -157,28 +157,28 @@ class Toast {
     if (typeof this.options.position === 'string' && $.inArray(this.options.position, PositionClasses) !== -1) {
       if (this.options.position === 'bottom-center') {
         this._container.css({
-          left:  $(window).outerWidth() / two - this._container.outerWidth() / two,
+          left: $(window).outerWidth() / two - this._container.outerWidth() / two,
           bottom: 20
         })
       } else if (this.options.position === 'top-center') {
         this._container.css({
-          left:  $(window).outerWidth() / two - this._container.outerWidth() / two,
+          left: $(window).outerWidth() / two - this._container.outerWidth() / two,
           top: 20
         })
       } else if (this.options.position === 'mid-center') {
         this._container.css({
-          left:  $(window).outerWidth() / two - this._container.outerWidth() / two,
-          top:  $(window).outerHeight() / two - this._container.outerHeight() / two
+          left: $(window).outerWidth() / two - this._container.outerWidth() / two,
+          top: $(window).outerHeight() / two - this._container.outerHeight() / two
         })
       } else {
         this._container.addClass(this.options.position)
       }
     } else if (typeof this.options.position === 'object') {
       this._container.css({
-        top : this.options.position.top ? this.options.position.top : 'auto',
-        bottom : this.options.position.bottom ? this.options.position.bottom : 'auto',
-        left : this.options.position.left ? this.options.position.left : 'auto',
-        right : this.options.position.right ? this.options.position.right : 'auto'
+        top: this.options.position.top ? this.options.position.top : 'auto',
+        bottom: this.options.position.bottom ? this.options.position.bottom : 'auto',
+        left: this.options.position.left ? this.options.position.left : 'auto',
+        right: this.options.position.right ? this.options.position.right : 'auto'
       })
     } else {
       this._container.addClass('bottom-left')
@@ -347,48 +347,48 @@ class Toast {
   }
 
   // Staticx
-  static suc(text) {
+  static suc(text, float) {
     const option = {
       heading: '成功',
       text,
-      position: 'top-center',
-      hideAfter :1500,
+      position: float || 'top-center',
+      hideAfter: 2000,
       stack: false,
       icon: 'success'
     }
     return new Toast(option)
   }
 
-  static err(text) {
+  static err(text, float) {
     const option = {
       heading: '错误',
       text,
-      position: 'top-center',
-      hideAfter :3000,
+      position: float || 'top-center',
+      hideAfter: 3500,
       stack: false,
       icon: 'error'
     }
     return new Toast(option)
   }
 
-  static info(text) {
+  static info(text, float) {
     const option = {
       heading: '提示',
       text,
-      position: 'top-center',
-      hideAfter :1500,
+      position: float || 'top-center',
+      hideAfter: 3000,
       stack: false,
       icon: 'info'
     }
     return new Toast(option)
   }
 
-  static warn(text) {
+  static warn(text, float) {
     const option = {
       heading: '警告',
       text,
-      position: 'top-center',
-      hideAfter :1500,
+      position: float || 'top-center',
+      hideAfter: 3000,
       stack: false,
       icon: 'warning'
     }
@@ -421,9 +421,9 @@ class Toast {
  */
 
 $.extend({
-  [NAME]:Toast._jQueryInterface
+  [NAME]: Toast._jQueryInterface
 })
-$[NAME].noConflict  = () => {
+$[NAME].noConflict = () => {
   $[NAME] = JQUERY_NO_CONFLICT
   return Toast._jQueryInterface
 }

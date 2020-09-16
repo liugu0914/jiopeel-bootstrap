@@ -396,48 +396,48 @@
     } // Staticx
     ;
 
-    Toast.suc = function suc(text) {
+    Toast.suc = function suc(text, float) {
       var option = {
         heading: '成功',
         text: text,
-        position: 'top-center',
-        hideAfter: 1500,
+        position: float || 'top-center',
+        hideAfter: 2000,
         stack: false,
         icon: 'success'
       };
       return new Toast(option);
     };
 
-    Toast.err = function err(text) {
+    Toast.err = function err(text, float) {
       var option = {
         heading: '错误',
         text: text,
-        position: 'top-center',
-        hideAfter: 3000,
+        position: float || 'top-center',
+        hideAfter: 3500,
         stack: false,
         icon: 'error'
       };
       return new Toast(option);
     };
 
-    Toast.info = function info(text) {
+    Toast.info = function info(text, float) {
       var option = {
         heading: '提示',
         text: text,
-        position: 'top-center',
-        hideAfter: 1500,
+        position: float || 'top-center',
+        hideAfter: 3000,
         stack: false,
         icon: 'info'
       };
       return new Toast(option);
     };
 
-    Toast.warn = function warn(text) {
+    Toast.warn = function warn(text, float) {
       var option = {
         heading: '警告',
         text: text,
-        position: 'top-center',
-        hideAfter: 1500,
+        position: float || 'top-center',
+        hideAfter: 3000,
         stack: false,
         icon: 'warning'
       };

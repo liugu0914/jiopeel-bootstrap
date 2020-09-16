@@ -37,6 +37,7 @@ const bsPlugins = {
   InitUI: path.resolve(__dirname, '../js/src/initUI.js'),
   Toast: path.resolve(__dirname, '../js/src/toast.js'),
   Menu: path.resolve(__dirname, '../js/src/menu.js'),
+  MetisMenu: path.resolve(__dirname, '../js/src/metismenu.js'),
   Modal: path.resolve(__dirname, '../js/src/modal.js'),
   ModalCopy: path.resolve(__dirname, '../js/src/modalcopy.js'),
   Popover: path.resolve(__dirname, '../js/src/popover.js'),
@@ -113,6 +114,12 @@ function build(plugin) {
     external.push(bsPlugins.Menu)
     globals[bsPlugins.Menu] = 'Menu'
   }
+
+    // Do not bundle MetisMenu in plugins
+    if (plugin !== 'MetisMenu') {
+      external.push(bsPlugins.MetisMenu)
+      globals[bsPlugins.MetisMenu] = 'MetisMenu'
+    }
 
   // Do not bundle Editor in Popover
   if (plugin !== 'Editor') {

@@ -162,9 +162,7 @@ class Ajax {
       success: this.success,
       error: this.error(op)
     }
-    if (op.error) {
-      delete op.error
-    }
+    delete op.error
     if (!op.success) {
       delete op.success
     }
@@ -205,7 +203,10 @@ class Ajax {
     if (!result || typeof result !== 'object') {
       return Toast.err('未知错误')
     }
-    return Toast.suc(result.message)
+    if (result.result) {
+      return Toast.suc(result.message)
+    }
+    return Toast.err(result.message)
   }
 
   static error(op) {
