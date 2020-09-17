@@ -192,10 +192,7 @@
         success: this.success,
         error: this.error(op)
       };
-
-      if (op.error) {
-        delete op.error;
-      }
+      delete op.error;
 
       if (!op.success) {
         delete op.success;

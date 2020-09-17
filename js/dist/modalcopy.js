@@ -359,7 +359,7 @@
         type: Ajax.POST,
         dataType: Ajax.HTML,
         success: function success(res) {
-          return $(that._element.querySelector(Selector.DIALOG)).html(res ? res : '').find(Selector.MODAL_CONTENT).initUI();
+          return $(that._element.querySelector(Selector.DIALOG)).html(res ? res : '').initUI();
         },
         error: function error() {
           that.hide();

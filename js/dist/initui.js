@@ -811,7 +811,9 @@
 
     _proto.initFuc = function initFuc() {
       return function () {
-        var ele = $(this._element).find("[" + Selector.INIT + "]:first");
+        var _ele_ = this._element === window ? document : this._element;
+
+        var ele = $(_ele_).find("[" + Selector.INIT + "]:first");
 
         if (ele.length === 0) {
           return;
@@ -820,7 +822,7 @@
         var init = Tool.eval(ele.attr(Selector.INIT));
 
         if (init && typeof init === 'function') {
-          init(this._element);
+          init(_ele_);
         }
       };
     } // ----------------------------------------------------------------------

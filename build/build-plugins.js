@@ -48,7 +48,9 @@ const bsPlugins = {
   Tooltip: path.resolve(__dirname, '../js/src/tooltip.js'),
   Util: path.resolve(__dirname, '../js/src/util.js'),
   Upload: path.resolve(__dirname, '../js/src/upload.js'),
-  Zoom: path.resolve(__dirname, '../js/src/zoom.js')
+  Zoom: path.resolve(__dirname, '../js/src/zoom.js'),
+  Catalog: path.resolve(__dirname, '../js/src/catalog.js'),
+  Comments: path.resolve(__dirname, '../js/src/comments.js')
 }
 const rootPath = TEST ? '../js/coverage/dist/' : '../js/dist/'
 

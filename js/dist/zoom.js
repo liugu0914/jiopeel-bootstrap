@@ -66,10 +66,10 @@
         border: '1px solid #e9e9e9',
         borderRadius: 2,
         fontSize: 12,
-        color: '#999'
+        color: '#e4e4e4'
       },
       btnHover: {
-        color: '#666'
+        color: '#FFF'
       }
     }
   };
@@ -194,8 +194,6 @@
         return Object.assign({}, Defaults.styles.zoomImage, style);
       }
 
-      style.width = image.naturalWidth;
-      style.height = image.naturalHeight;
       var two = 2; // Get the the coords for center of the viewport
 
       var viewportX = window.innerWidth / two;
