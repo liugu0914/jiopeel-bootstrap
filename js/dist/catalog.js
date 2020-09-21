@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap catalog.js v4.3.1 (http://jiopeel.com/)
+  * Bootstrap catalog.js v4.3.1 (http://zhikezhui.com/)
   * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
@@ -112,7 +112,7 @@
       for (var i in list) {
         var row = Catalog.rowTemplate;
         var item = list[i];
-        var time = item.updtime; // 更新时间
+        var time = item.ctime; // 创建时间
 
         if (moment) {
           var nowyear = moment().year();

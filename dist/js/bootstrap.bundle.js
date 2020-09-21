@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap v4.3.1 (http://jiopeel.com/)
+  * Bootstrap v4.3.1 (http://zhikezhui.com/)
   * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
@@ -819,7 +819,7 @@
     ;
 
     Tool.chkUrl = function chkUrl(value) {
-      var reg = /^(?=^.{3,255}$)(http(s)?:\/\/)+(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*([\?&]\w+=\w*)*$/;
+      var reg = /^(?=^.{3,255}$)(http(s)?:\/\/)+(www\.)?[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+(:\d+)*(\/\w+\.\w+)*([?&]\w+=\w*)*$/;
       return reg.test(value);
     } // ----------------------------------------------------------------------
     // 检查身份证格式

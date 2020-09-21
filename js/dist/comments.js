@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap comments.js v4.3.1 (http://jiopeel.com/)
+  * Bootstrap comments.js v4.3.1 (http://zhikezhui.com/)
   * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
@@ -24,6 +24,248 @@
     $author: null,
     $contact: null,
     $website: null,
+    emoji: [{
+      name: '疑问',
+      id: 'cs-svg-yiwen'
+    }, {
+      name: '晕',
+      id: 'cs-svg-yun'
+    }, {
+      name: '流鼻血',
+      id: 'cs-svg-liubixie'
+    }, {
+      name: '什么',
+      id: 'cs-svg-shimo'
+    }, {
+      name: '点赞',
+      id: 'cs-svg-dianzan'
+    }, {
+      name: '鼻涕',
+      id: 'cs-svg-biti'
+    }, {
+      name: '奋斗',
+      id: 'cs-svg-fendou'
+    }, {
+      name: '呼气',
+      id: 'cs-svg-huqi'
+    }, {
+      name: '哼',
+      id: 'cs-svg-heng'
+    }, {
+      name: '骷髅',
+      id: 'cs-svg-kulou'
+    }, {
+      name: '冷',
+      id: 'cs-svg-leng'
+    }, {
+      name: '讨厌',
+      id: 'cs-svg-taoyan1'
+    }, {
+      name: '睡醒',
+      id: 'cs-svg-shuixing'
+    }, {
+      name: '爱你',
+      id: 'cs-svg-aini'
+    }, {
+      name: '爱心',
+      id: 'cs-svg-aixin1'
+    }, {
+      name: '炸弹',
+      id: 'cs-svg-zhadan'
+    }, {
+      name: '心碎',
+      id: 'cs-svg-xinsui'
+    }, {
+      name: '骂人',
+      id: 'cs-svg-maren'
+    }, {
+      name: '猪头',
+      id: 'cs-svg-zhutou'
+    }, {
+      name: '企鹅',
+      id: 'cs-svg-qie'
+    }, {
+      name: '幽灵',
+      id: 'cs-svg-youling'
+    }, {
+      name: '啊',
+      id: 'cs-svg-a'
+    }, {
+      name: '闭嘴',
+      id: 'cs-svg-bizui'
+    }, {
+      name: '白眼',
+      id: 'cs-svg-baiyan'
+    }, {
+      name: '爱心',
+      id: 'cs-svg-aixin'
+    }, {
+      name: '大惊',
+      id: 'cs-svg-dajing'
+    }, {
+      name: '呲牙',
+      id: 'cs-svg-ziya'
+    }, {
+      name: '大笑',
+      id: 'cs-svg-daxiao'
+    }, {
+      name: '饿死',
+      id: 'cs-svg-esi'
+    }, {
+      name: '发呆',
+      id: 'cs-svg-fadai'
+    }, {
+      name: '犯困',
+      id: 'cs-svg-fankun'
+    }, {
+      name: '尴尬',
+      id: 'cs-svg-ganga'
+    }, {
+      name: '愤怒',
+      id: 'cs-svg-fennu'
+    }, {
+      name: '汗颜',
+      id: 'cs-svg-hanyan'
+    }, {
+      name: '惊恐',
+      id: 'cs-svg-jingkong'
+    }, {
+      name: '好吃',
+      id: 'cs-svg-haochi'
+    }, {
+      name: '恶魔',
+      id: 'cs-svg-emo'
+    }, {
+      name: '惊悚',
+      id: 'cs-svg-jingsong'
+    }, {
+      name: '惊讶',
+      id: 'cs-svg-jingya'
+    }, {
+      name: '开心',
+      id: 'cs-svg-kaixin'
+    }, {
+      name: '冷酷',
+      id: 'cs-svg-lengku'
+    }, {
+      name: '大闹',
+      id: 'cs-svg-danao'
+    }, {
+      name: '流口水',
+      id: 'cs-svg-liukoushui'
+    }, {
+      name: '流泪',
+      id: 'cs-svg-liulei'
+    }, {
+      name: '懵逼',
+      id: 'cs-svg-mengbi'
+    }, {
+      name: '面无表情',
+      id: 'cs-svg-mianwubiaoqing'
+    }, {
+      name: '难过',
+      id: 'cs-svg-nanguo'
+    }, {
+      name: '睡着',
+      id: 'cs-svg-shuizhuo'
+    }, {
+      name: '讨厌',
+      id: 'cs-svg-taoyan'
+    }, {
+      name: '贪吃',
+      id: 'cs-svg-tanchi'
+    }, {
+      name: '死了',
+      id: 'cs-svg-siliao'
+    }, {
+      name: '调皮',
+      id: 'cs-svg-tiaopi'
+    }, {
+      name: '笑出泪',
+      id: 'cs-svg-xiaochulei'
+    }, {
+      name: '无聊',
+      id: 'cs-svg-wuliao'
+    }, {
+      name: '星星眼',
+      id: 'cs-svg-xingxingyan'
+    }, {
+      name: '斜眼',
+      id: 'cs-svg-xieyan'
+    }, {
+      name: '吓死',
+      id: 'cs-svg-xiasi'
+    }, {
+      name: '笑脸',
+      id: 'cs-svg-xiaolian'
+    }, {
+      name: '酷',
+      id: 'cs-svg-ku'
+    }, {
+      name: '生气',
+      id: 'cs-svg-shengqi'
+    }, {
+      name: '又死了',
+      id: 'cs-svg-yousiliao'
+    }, {
+      name: '恩~',
+      id: 'cs-svg-en'
+    }, {
+      name: '不舒服',
+      id: 'cs-svg-bushufu'
+    }, {
+      name: '便便',
+      id: 'cs-svg-bianbian'
+    }, {
+      name: '犯困',
+      id: 'cs-svg-fankun1'
+    }, {
+      name: '飞吻',
+      id: 'cs-svg-feiwen'
+    }, {
+      name: '感冒',
+      id: 'cs-svg-ganmao'
+    }, {
+      name: '坏笑',
+      id: 'cs-svg-huaixiao'
+    }, {
+      name: '流汗',
+      id: 'cs-svg-liuhan'
+    }, {
+      name: '呕吐',
+      id: 'cs-svg-outu'
+    }, {
+      name: '瞌睡',
+      id: 'cs-svg-keshui'
+    }, {
+      name: '忍者',
+      id: 'cs-svg-renzhe'
+    }, {
+      name: '三条线',
+      id: 'cs-svg-santiaoxian'
+    }, {
+      name: '怪物',
+      id: 'cs-svg-guaiwu'
+    }, {
+      name: '受伤',
+      id: 'cs-svg-shoushang'
+    }, {
+      name: '天使',
+      id: 'cs-svg-tianshi'
+    }, {
+      name: '衰',
+      id: 'cs-svg-shuai'
+    }, {
+      name: '献吻',
+      id: 'cs-svg-xianwen'
+    }, {
+      name: '笑掉大牙',
+      id: 'cs-svg-xiaodiaodaya'
+    }, {
+      name: '凶',
+      id: 'cs-svg-xiong'
+    }],
+    emojiTemplate: "<div class=\"p-1 emoji-item\" title=\"{{name}}\" data-title=\"{{name}}\">\n  <a href=\"#\">\n      <svg class=\"cs-svg\" aria-hidden=\"true\">\n          <use xlink:href=\"#{{id}}\"></use>\n      </svg>\n  </a>\n</div>",
     replayTemplate: "<span id=\"comments-main-replay\" class=\"comments-main-replay\">\n  <span class=\"media-info-span\">\n      \u56DE\u590D\n          <i class=\"cs cs-xiangyou1\"></i>\n      </span>\n  <span class=\"media-info-span\">\n          <a class=\"media-body-img\" href=\"#\">\n              <img src=\"{{img}}\" class=\"w-32 rounded-circle\">\n          </a>\n      </span>\n  <span class=\"media-info-span\">\n          <a href=\"{{website}}\">{{author}}</a>\n      </span>\n  <span  class=\"btn btn-sm btn-outline-dark float-right pointer pl-1 pr-1\" onclick=\"Comments.cancelRelay()\">\n     \u53D6\u6D88\u56DE\u590D\n  </span>\n</span>",
     mediaFisrtTemplate: "<div class=\"media media-first pt-3 pb-3\">\n<a class=\"pr-1 pr-md-2\" href=\"javascript:void(0)\">\n    <img src=\"/img/user.png\" class=\"w-32 rounded-circle\" alt=\"Generic placeholder image\">\n</a>\n<div class=\"media-body\">\n    <div class=\"media-content\">\n        <h5 class=\"mt-0 mb-1\">\n            <a href=\"{{website}}\" >{{author}}</a>\n            <span class=\"media-info-span float-right font-15\">\n            <a href=\"#\" class=\"comments-like {{active}}\">\n                <i class=\"cs cs-dianzan\"></i>\n                <span>{{love}}</span>\n            </a>\n        </span>\n        </h5>\n        <p>{{comment}}</p>\n        <div class=\"media-info\">\n            <small class=\"text-muted\">\n                <span class=\"media-info-span\">{{ctime}}</span>\n                <span class=\"media-info-span float-right\">\n                <a class=\"comments-replay\"  href=\"#\">\n                    <i class=\"cs cs-pinglun\"></i>\n                    \u56DE\u590D\n                </a>\n            </span>\n            </small>\n        </div>\n    </div>\n</div>\n</div>",
     mediaReplayTemplate: "<div class=\"media mt-2\">\n        <a class=\"pr-1\" href=\"javascript:void(0)\">\n            <img src=\"/img/user.png\" class=\"avatar-xs rounded-circle\" alt=\"Generic placeholder image\">\n        </a>\n        <div class=\"media-body\">\n            <div class=\"media-content\">\n            <h5 class=\"mt-0 mb-1\">\n                <span class=\"media-info-span\">\n              <a href=\"{{website}}\" >\n                {{author}}\n              </a>\n                {{superauthorTemplate}}\n                <span class=\"media-info-span float-right font-15\">\n                    <a href=\"#\"  class=\"comments-like {{active}}\"><i class=\"cs cs-dianzan\"></i> <span>{{love}}</span></a>\n                </span>\n            </h5>\n            <p>{{comment}}</p>\n            </div>\n            <div class=\"media-info\">\n                <small class=\"text-muted\">\n                    <span class=\"media-info-span\">{{ctime}}</span>\n                    <span class=\"media-info-span float-right\">\n                        <a  href=\"#\" class=\"comments-replay\"> <i class=\"cs cs-pinglun\"></i> \u56DE\u590D</a>\n                    </span>\n                </small>\n            </div>\n        </div>\n    </div>",
@@ -63,6 +305,7 @@
       Comments.loadComments();
       Comments.commentLike();
       Comments.relay();
+      Comments.startEmoji();
       $(window).on('resize scroll', function () {
         var windowHeight = $(window).height(); // 当前窗口的高度
 
@@ -84,6 +327,51 @@
           setTimeout(Comments.loadComments, 200);
         }
       });
+    },
+    startEmoji: function startEmoji() {
+      var btn = $('#emoji');
+
+      if (btn.length === 0) {
+        return;
+      }
+
+      var parent = btn.parent();
+      var div = btn.next();
+      parent.on('show.bs.dropdown', function () {
+        if (parent.data('emoji')) {
+          return;
+        }
+
+        for (var i in Comments.emoji) {
+          var item = Comments.emoji[i];
+          var temp = Comments.emojiTemplate;
+          temp = temp.replace(new RegExp('{{id}}', 'g'), item.id).replace(new RegExp('{{name}}', 'g'), item.name);
+          $(temp).appendTo(div);
+        }
+
+        div.find('.emoji-item').on('click', function (event) {
+          if (event) {
+            event.preventDefault();
+          }
+
+          Comments.$comment.val(Comments.$comment.val() + "[" + $(event.currentTarget).data('title') + "]");
+        });
+        parent.data('emoji', true);
+      });
+    },
+    contentHandle: function contentHandle(text) {
+      text = text.replace(/</g, '&lt;').replace(/</g, '&gt;').replace(/\[[A-Z~\u4e00-\u9fa5]+\]/gi, function (str) {
+        for (var i = 0; i < Comments.emoji.length; i++) {
+          var item = Comments.emoji[i];
+
+          if (str === "[" + item.name + "]") {
+            return "<svg class=\"cs-svg\" aria-hidden=\"true\"><use xlink:href=\"#" + item.id + "\"></use></svg>";
+          }
+        }
+
+        return str;
+      });
+      return text;
     },
     chk: function chk() {
       var nullMsg = [];
@@ -333,7 +621,7 @@
           itemActive = 'active';
         }
 
-        temp = temp.replace(new RegExp('{{author}}', 'g'), item.author).replace(new RegExp('{{website}}', 'g'), item.website || 'javascript:void(0)').replace(new RegExp('{{active}}', 'g'), itemActive).replace(new RegExp('{{love}}', 'g'), item.love).replace(new RegExp('{{comment}}', 'g'), item.comment).replace(new RegExp('{{ctime}}', 'g'), ctime);
+        temp = temp.replace(new RegExp('{{author}}', 'g'), item.author).replace(new RegExp('{{website}}', 'g'), item.website || 'javascript:void(0)').replace(new RegExp('{{active}}', 'g'), itemActive).replace(new RegExp('{{love}}', 'g'), item.love).replace(new RegExp('{{comment}}', 'g'), Comments.contentHandle(item.comment)).replace(new RegExp('{{ctime}}', 'g'), ctime);
         var $temp = $(temp);
         var $mediaBody = $temp.find('.media-body:first');
         $mediaBody.data('comment_data', item);
@@ -361,7 +649,7 @@
               replayActive = 'active';
             }
 
-            replayTemp = replayTemp.replace(new RegExp('{{author}}', 'g'), reply.author).replace(new RegExp('{{website}}', 'g'), reply.website || 'javascript:void(0)').replace(new RegExp('{{active}}', 'g'), replayActive).replace(new RegExp('{{love}}', 'g'), reply.love).replace(new RegExp('{{comment}}', 'g'), reply.comment).replace(new RegExp('{{ctime}}', 'g'), replyTime);
+            replayTemp = replayTemp.replace(new RegExp('{{author}}', 'g'), reply.author).replace(new RegExp('{{website}}', 'g'), reply.website || 'javascript:void(0)').replace(new RegExp('{{active}}', 'g'), replayActive).replace(new RegExp('{{love}}', 'g'), reply.love).replace(new RegExp('{{comment}}', 'g'), Comments.contentHandle(reply.comment)).replace(new RegExp('{{ctime}}', 'g'), replyTime);
 
             if (reply.topid !== '0' && reply.topid !== reply.superid) {
               superTemp = superTemp.replace(new RegExp('{{superauthor}}', 'g'), reply.superauthor || '外星人').replace(new RegExp('{{superwebsite}}', 'g'), reply.superwebsite || 'javascript:void(0)');

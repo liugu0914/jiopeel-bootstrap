@@ -1,5 +1,5 @@
 /*!
-  * Bootstrap editor.js v4.3.1 (http://jiopeel.com/)
+  * Bootstrap editor.js v4.3.1 (http://zhikezhui.com/)
   * Copyright 2011-2020 lyc
   */
 (function (global, factory) {
