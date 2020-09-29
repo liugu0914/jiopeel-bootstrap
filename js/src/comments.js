@@ -276,7 +276,7 @@ const Comments = {
 </span>`,
   mediaFisrtTemplate: `<div class="media media-first pt-3 pb-3">
 <a class="pr-1 pr-md-2" href="javascript:void(0)">
-    <img src="/img/user.png" class="w-32 rounded-circle" alt="Generic placeholder image">
+    <img src="{{img}}" class="w-32 rounded-circle" alt="Generic placeholder image">
 </a>
 <div class="media-body">
     <div class="media-content">
@@ -306,7 +306,7 @@ const Comments = {
 </div>`,
   mediaReplayTemplate: `<div class="media mt-2">
         <a class="pr-1" href="javascript:void(0)">
-            <img src="/img/user.png" class="avatar-xs rounded-circle" alt="Generic placeholder image">
+            <img src="{{img}}" class="avatar-xs rounded-circle" alt="Generic placeholder image">
         </a>
         <div class="media-body">
             <div class="media-content">
@@ -338,7 +338,7 @@ const Comments = {
             </span>
             <span class="media-info-span">
                 <a class="media-body-img" href="javascript:void(0)">
-                    <img src="/img/user.png" class="avatar-xs rounded-circle" alt="Generic placeholder image">
+                    <img src="{{superimg}}" class="avatar-xs rounded-circle" alt="Generic placeholder image">
                 </a>
             </span>
             <span class="media-info-span">
@@ -503,7 +503,7 @@ const Comments = {
 
       const $header = $('#comments-main-header')
       let temp = Comments.replayTemplate
-      temp = temp.replace(new RegExp('{{img}}', 'g'), '/img/user.png')
+      temp = temp.replace(new RegExp('{{img}}', 'g'), subdata.imgurl || '/img/user.png')
         .replace(new RegExp('{{website}}', 'g'), subdata.website || 'javascript:void(0)')
         .replace(new RegExp('{{author}}', 'g'), subdata.author || '外星人')
       $(temp).appendTo($header)
@@ -645,6 +645,7 @@ const Comments = {
         itemActive = 'active'
       }
       temp = temp.replace(new RegExp('{{author}}', 'g'), item.author)
+        .replace(new RegExp('{{img}}', 'g'), item.imgurl || '/img/user.png')
         .replace(new RegExp('{{website}}', 'g'), item.website || 'javascript:void(0)')
         .replace(new RegExp('{{active}}', 'g'), itemActive)
         .replace(new RegExp('{{love}}', 'g'), item.love)
@@ -672,6 +673,7 @@ const Comments = {
             replayActive = 'active'
           }
           replayTemp = replayTemp.replace(new RegExp('{{author}}', 'g'), reply.author)
+            .replace(new RegExp('{{img}}', 'g'), reply.imgurl || '/img/user.png')
             .replace(new RegExp('{{website}}', 'g'), reply.website || 'javascript:void(0)')
             .replace(new RegExp('{{active}}', 'g'), replayActive)
             .replace(new RegExp('{{love}}', 'g'), reply.love)
@@ -679,6 +681,7 @@ const Comments = {
             .replace(new RegExp('{{ctime}}', 'g'), replyTime)
           if (reply.topid !== '0' && reply.topid !== reply.superid) {
             superTemp = superTemp.replace(new RegExp('{{superauthor}}', 'g'), reply.superauthor || '外星人')
+              .replace(new RegExp('{{superimg}}', 'g'), reply.superimgurl || '/img/user.png')
               .replace(new RegExp('{{superwebsite}}', 'g'), reply.superwebsite || 'javascript:void(0)')
           } else {
             superTemp = ''
